@@ -182,3 +182,20 @@ export interface MagazineDetail {
   content: string;
   publishedAt?: string;
 }
+
+export interface DashboardOverview {
+  activeCustomers: number;
+  avgStayMinutes: number;
+  leadConversionRate: number;
+  hotContentTitle: string;
+}
+
+export interface UserJourney {
+  uid: string;
+  paths: {
+    path: string;
+    timestamp: string;
+  }[];
+  tags?: string[];
+  lastActive: string;
+}

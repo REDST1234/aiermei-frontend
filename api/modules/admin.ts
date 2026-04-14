@@ -1,14 +1,30 @@
 ﻿import { httpRequest } from '@/api/http';
-import type { AnalysisResult, UserPath } from '@/types/domain';
+import type { AnalysisResult, DashboardOverview, UserJourney } from '@/types/domain';
 
-export function getUserPaths(uid: string) {
-  return httpRequest<UserPath[]>({ url: `/api/v1/admin/user-paths/${uid}` });
+/**
+ * 获取后台概览数据
+ */
+export function getDashboardOverview() {
+  return httpRequest<DashboardOverview>({ url: '/api/v1/admin/dashboard/overview' });
 }
 
-export function analyzeProfile(profile: Record<string, any>) {
+/**
+ * 获取用户路径
+ * @param uid 用户唯一 ID
+ */
+export function getUserJourney(uid: string) {
+  return httpRequest<UserJourney>({ url: `/api/v1/analytics/users/${uid}/journey` });
+}
+
+/**
+ * AI 路径分析
+ * @param uid 用户唯一 ID
+ * @param forceRefresh 是否强制刷新
+ */
+export function analyzeUser(uid: string, forceRefresh?: boolean) {
   return httpRequest<AnalysisResult>({
-    url: '/api/v1/admin/analyze-profile',
+    url: `/api/v1/admin/users/${uid}/analysis`,
     method: 'POST',
-    data: profile
+    data: forceRefresh !== undefined ? { forceRefresh } : {}
   });
 }

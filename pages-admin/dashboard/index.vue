@@ -6,21 +6,21 @@
           <view class="h1">数据后台</view>
           <view class="sub">用户行为与画像分析</view>
         </view>
-        <view class="count">用户 124</view>
+        <view class="count">用户 {{ dashboard?.activeCustomers ?? '-' }}</view>
       </view>
 
       <view class="stats-grid">
         <view class="stat">
           <view class="stat-label">停留时长</view>
-          <view class="stat-value">12.5 min</view>
+          <view class="stat-value">{{ dashboard?.avgStayMinutes ?? '-' }} min</view>
         </view>
         <view class="stat">
           <view class="stat-label">转化率</view>
-          <view class="stat-value">42%</view>
+          <view class="stat-value">{{ dashboard?.leadConversionRate ?? '-' }}%</view>
         </view>
         <view class="stat">
-          <view class="stat-label">高意向标签</view>
-          <view class="stat-value">套房/康复</view>
+          <view class="stat-label">热门内容</view>
+          <view class="stat-value">{{ dashboard?.hotContentTitle ?? '-' }}</view>
         </view>
       </view>
 
@@ -32,7 +32,7 @@
 
         <view class="sec-title">行为路径</view>
         <view class="path-wrap">
-          <view class="path-tag" v-for="(item, idx) in profile.paths" :key="idx">{{ item.path }}</view>
+          <view class="path-tag" v-for="(item, idx) in journey?.paths ?? profile.paths" :key="idx">{{ item.path }}</view>
         </view>
 
         <view class="sec-title">标签</view>
@@ -50,22 +50,36 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { analyzeProfile } from '@/api/modules/admin';
+import { getDashboardOverview, analyzeUser, getUserJourney } from '@/api/modules/admin';
 import { getLocalProfile, trackPath } from '@/store/session';
-import type { AnalysisResult, UserProfile } from '@/types/domain';
+import type { AnalysisResult, UserProfile, DashboardOverview, UserJourney } from '@/types/domain';
 
 const profile = ref<UserProfile>(getLocalProfile());
 const analysis = ref<AnalysisResult>({ tags: [], script: '' });
+const dashboard = ref<DashboardOverview | null>(null);
+const journey = ref<UserJourney | null>(null);
+
+async function loadDashboard() {
+  const res = await getDashboardOverview();
+  dashboard.value = res.data;
+}
 
 async function runAnalysis() {
-  const res = await analyzeProfile(profile.value as unknown as Record<string, any>);
+  if (!profile.value.uid) return;
+  const res = await analyzeUser(profile.value.uid, true);
   analysis.value = res.data;
+}
+
+async function loadJourney() {
+  if (!profile.value.uid) return;
+  const res = await getUserJourney(profile.value.uid);
+  journey.value = res.data;
 }
 
 onLoad(async () => {
   trackPath('管理后台');
   profile.value = getLocalProfile();
-  await runAnalysis();
+  await Promise.all([loadDashboard(), runAnalysis(), loadJourney()]);
 });
 </script>
 

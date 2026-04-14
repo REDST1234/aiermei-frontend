@@ -1,5 +1,5 @@
-import { httpRequest } from '@/api/http';
-import type { EvaluationReq, ComplaintReq, AiChatReq } from '@/types/api';
+import { httpRequest, createSSEConnection, type SSEEvent } from '@/api/http';
+import type { EvaluationReq, ComplaintReq, AiChatReq, AiChatStartEvent, AiChatDeltaEvent, AiChatSuggestionEvent, AiChatDoneEvent, AiChatErrorEvent } from '@/types/api';
 import type { Coupon, PostpartumService, FaqCategory, FaqItem, ServiceHotlines, Suite, MagazineDetail } from '@/types/domain';
 
 export function getCurrentUser() {
@@ -80,11 +80,46 @@ export function submitComplaint(payload: ComplaintReq) {
   });
 }
 
-export function aiChat(payload: AiChatReq, uid: string) {
-  return httpRequest<{ sessionId: string; content: string }>({
+export interface AiChatCallbacks {
+  onStart?: (data: AiChatStartEvent) => void;
+  onDelta?: (data: AiChatDeltaEvent) => void;
+  onSuggestion?: (data: AiChatSuggestionEvent) => void;
+  onDone?: (data: AiChatDoneEvent) => void;
+  onError?: (data: AiChatErrorEvent) => void;
+  onConnectionError?: (error: Error) => void;
+  onComplete?: () => void;
+}
+
+/**
+ * AI 问答（SSE 流式响应）
+ * @param payload 请求参数
+ * @param callbacks 各事件回调
+ * @returns UniApp.RequestTask 可用于取消请求
+ */
+export function aiChat(payload: AiChatReq, callbacks: AiChatCallbacks): UniApp.RequestTask {
+  return createSSEConnection({
     url: '/api/v1/ai/chat',
-    method: 'POST',
     data: payload,
-    header: { 'X-Uid': uid }
+    onEvent: (event: SSEEvent) => {
+      switch (event.event) {
+        case 'start':
+          callbacks.onStart?.(event.data);
+          break;
+        case 'delta':
+          callbacks.onDelta?.(event.data);
+          break;
+        case 'suggestion':
+          callbacks.onSuggestion?.(event.data);
+          break;
+        case 'done':
+          callbacks.onDone?.(event.data);
+          break;
+        case 'error':
+          callbacks.onError?.(event.data);
+          break;
+      }
+    },
+    onError: callbacks.onConnectionError,
+    onComplete: callbacks.onComplete
   });
 }
