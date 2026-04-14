@@ -1,6 +1,6 @@
 import { httpRequest } from '@/api/http';
 import type { EvaluationReq, ComplaintReq, AiChatReq } from '@/types/api';
-import type { Coupon, PostpartumService, FaqCategory, FaqItem, ServiceHotlines, Suite } from '@/types/domain';
+import type { Coupon, PostpartumService, FaqCategory, FaqItem, ServiceHotlines, Suite, MagazineDetail } from '@/types/domain';
 
 export function getCurrentUser() {
   return httpRequest<{
@@ -42,6 +42,10 @@ export function getMemberCoupons() {
 
 export function getMemberPackages() {
   return httpRequest<Suite[]>({ url: '/api/v1/member/packages' });
+}
+
+export function getMagazineDetail(magazineId: string) {
+  return httpRequest<MagazineDetail>({ url: `/api/v1/member/magazines/${magazineId}` });
 }
 
 export function getPostpartumServices() {

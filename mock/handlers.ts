@@ -1,5 +1,5 @@
 import type { ApiResponse } from '@/types/api';
-import { banners, contentCategories, contentItems, coupons, defaultProfile, faqCategories, faqItemsCommon, faqItemsPregnancy, fortuneCard, mockAnalysis, postpartumServices, presetQuestions, serviceHotlines, suites, centerSections, centerHome } from './data';
+import { banners, contentCategories, contentItems, coupons, defaultProfile, faqCategories, faqItemsCommon, faqItemsPregnancy, fortuneCard, mockAnalysis, postpartumServices, presetQuestions, serviceHotlines, suites, centerSections, centerHome, magazineDetails } from './data';
 
 export function createMockResponse<T>(data: T): ApiResponse<T> {
   return {
@@ -148,6 +148,12 @@ export function mockRoute(url: string, method: string, data?: any): ApiResponse<
           return createMockResponse({ ...article, content: '<p>这是文章正文内容...</p>', publishedAt: '2026-04-14T10:00:00+08:00' });
         }
         return createMockResponse(contentItems[0]);
+      }
+
+      if (urlWithoutQuery.startsWith('/api/v1/member/magazines/')) {
+        const id = urlWithoutQuery.split('/').pop();
+        const magazine = magazineDetails.find((item) => item.id === id) || magazineDetails[0];
+        return createMockResponse(magazine);
       }
 
       return null;

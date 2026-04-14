@@ -43,6 +43,12 @@
       }
     },
     {
+      "path": "pages/member/magazine",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/member-sub/index",
       "style": {
         "navigationStyle": "custom"

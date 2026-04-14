@@ -14,6 +14,8 @@ import type {
   FaqItem,
   ServiceHotlines,
   CenterHome,
+  Magazine,
+  MagazineDetail,
 } from '@/types/domain';
 
 export const banners: Banner[] = [
@@ -186,8 +188,37 @@ export const hotlineList = [
 ];
 
 export const memberArticles = [
-  { title: 'ECHOES OF HER', subtitle: '分娩后身体与情绪节律重建', desc: '阅读详情', image: 'https://picsum.photos/seed/mag1/400/400' },
-  { title: 'BEYOND MOTHERHOOD', subtitle: '母职之外的自我修复课题', desc: '阅读详情', image: 'https://picsum.photos/seed/mag2/400/400' }
+  { id: 'mag_1', title: 'ECHOES OF HER', subtitle: '分娩后身体与情绪节律重建', desc: '阅读详情', image: 'https://picsum.photos/seed/mag1/400/400' },
+  { id: 'mag_2', title: 'BEYOND MOTHERHOOD', subtitle: '母职之外的自我修复课题', desc: '阅读详情', image: 'https://picsum.photos/seed/mag2/400/400' }
+];
+
+export const magazines: Magazine[] = memberArticles.map(m => ({
+  id: m.id,
+  title: m.title,
+  subtitle: m.subtitle,
+  cover: m.image,
+  desc: m.desc
+}));
+
+export const magazineDetails: MagazineDetail[] = [
+  {
+    id: 'mag_1',
+    title: 'ECHOES OF HER',
+    subtitle: '分娩后身体与情绪节律重建',
+    cover: 'https://picsum.photos/seed/mag1/400/400',
+    author: '爱儿美编辑部',
+    content: '<p>每一位新妈妈都在经历一场深刻的转变——从独立的个体到生命的孕育者，再到新生命的守护者。</p><p>这个过程不仅是身体的恢复，更是情绪与身份的重新定义。本期杂志将带您探索产后恢复的多维度路径，从生理康复到心理调适，帮助您找到属于自己的新生节奏。</p><p>我们邀请了资深康复师、心理咨询师和营养学专家，为您提供科学、温暖的指导建议。愿每一位妈妈都能在这段特殊的日子里，温柔地对待自己，从容地迎接新生。</p>',
+    publishedAt: '2026-04-01T10:00:00+08:00'
+  },
+  {
+    id: 'mag_2',
+    title: 'BEYOND MOTHERHOOD',
+    subtitle: '母职之外的自我修复课题',
+    cover: 'https://picsum.photos/seed/mag2/400/400',
+    author: '爱儿美编辑部',
+    content: '<p>成为母亲是人生中最美好的礼物之一，但这并不意味着要完全放下自我。</p><p>本期杂志聚焦于"母职之外"的话题——如何在照顾宝宝的同时，保留属于自己的时间与空间？如何在角色转换中找到平衡？如何重新定义与伴侣、家人、朋友的关系？</p><p>我们相信，一个快乐的妈妈才能养育出快乐的宝宝。让我们一起探索，在爱与责任之间，如何温柔地拥抱那个曾经的自己。</p>',
+    publishedAt: '2026-03-15T10:00:00+08:00'
+  }
 ];
 
 export const centerFacilities = [

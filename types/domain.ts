@@ -164,3 +164,21 @@ export interface AnalysisResult {
   tags: string[];
   script: string;
 }
+
+export interface Magazine {
+  id: string;
+  title: string;
+  subtitle: string;
+  cover: string;
+  desc?: string;
+}
+
+export interface MagazineDetail {
+  id: string;
+  title: string;
+  subtitle: string;
+  cover: string;
+  author?: string;
+  content: string;
+  publishedAt?: string;
+}

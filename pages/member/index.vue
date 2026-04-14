@@ -38,8 +38,8 @@
           :duration="650"
           @change="onFeatureChange"
         >
-          <swiper-item v-for="item in articles" :key="item.title">
-            <view class="feature-card">
+          <swiper-item v-for="item in articles" :key="item.id">
+            <view class="feature-card" @click="openMagazine(item.id)">
               <view class="feature-left">
                 <image :src="item.image" mode="aspectFill" class="feature-image" />
                 <view class="feature-cover">
@@ -114,6 +114,11 @@ function openSub(id: string) {
   }
   trackPath(`会员子页:${id}`);
   uni.navigateTo({ url: `/pages/member-sub/index?id=${id}` });
+}
+
+function openMagazine(id: string) {
+  trackPath(`杂志:${id}`);
+  uni.navigateTo({ url: `/pages/member/magazine?id=${id}` });
 }
 
 function handleAuthSuccess() {
