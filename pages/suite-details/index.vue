@@ -7,7 +7,7 @@
       <view class="head-title">套房详情</view>
     </view>
 
-    <view class="list-wrap">
+    <view class="list-wrap" v-if="isLoggedIn">
       <view class="suite-card" v-for="item in suites" :key="item.id" @click="openDetail(item)">
         <view class="suite-cover-wrap">
           <image :src="item.coverImage || item.images?.[0]" class="suite-cover" mode="aspectFill" />
@@ -73,6 +73,15 @@
         </scroll-view>
       </view>
     </view>
+
+    <view class="login-prompt" v-else>
+      <view class="prompt-icon">🔒</view>
+      <view class="prompt-title">登录后查看套房详情</view>
+      <view class="prompt-desc">请先登录以查看完整房型信息</view>
+      <button class="login-btn" @click="showAuth = true">立即登录</button>
+    </view>
+
+    <AuthModal :visible="showAuth" @close="showAuth = false" @success="handleAuthSuccess" />
   </view>
 </template>
 
@@ -80,15 +89,34 @@
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import { getSuites, getSuiteDetail } from '@/api/modules/center';
-import { trackPath } from '@/store/session';
+import { trackPath, getLocalProfile, getToken, setLocalProfile } from '@/store/session';
+import { getCurrentUser } from '@/api/modules/member';
+import AuthModal from '@/components/AuthModal.vue';
 import type { Suite } from '@/types/domain';
 
 const suites = ref<Suite[]>([]);
 const selected = ref<Suite | null>(null);
 const currentImageIndex = ref(0);
+const isLoggedIn = ref(false);
+const showAuth = ref(false);
 
 function goBack() {
   uni.navigateBack();
+}
+
+function handleAuthSuccess() {
+  showAuth.value = false;
+  isLoggedIn.value = true;
+  loadSuites();
+}
+
+async function loadSuites() {
+  try {
+    const res = await getSuites();
+    suites.value = res.data;
+  } catch (e) {
+    console.error('Failed to load suites:', e);
+  }
 }
 
 async function openDetail(item: Suite) {
@@ -107,12 +135,17 @@ function onSwiperChange(e: any) {
 
 onLoad(async () => {
   trackPath('套房详情');
-  try {
-    const res = await getSuites();
-    suites.value = res.data;
-  } catch (e) {
-    console.error('Failed to load suites:', e);
+
+  const profile = getLocalProfile();
+  const token = getToken();
+
+  if (!profile.isLoggedIn && !token) {
+    showAuth.value = true;
+    return;
   }
+
+  isLoggedIn.value = true;
+  loadSuites();
 });
 </script>
 
@@ -384,5 +417,39 @@ onLoad(async () => {
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+.login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 48rpx;
+  text-align: center;
+}
+
+.prompt-icon {
+  font-size: 80rpx;
+  margin-bottom: 32rpx;
+}
+
+.prompt-title {
+  font-size: 36rpx;
+  color: #111827;
+  margin-bottom: 16rpx;
+}
+
+.prompt-desc {
+  font-size: 28rpx;
+  color: #6b7280;
+  margin-bottom: 40rpx;
+}
+
+.login-btn {
+  background: #111827;
+  color: #fff;
+  font-size: 30rpx;
+  padding: 24rpx 64rpx;
+  border-radius: 12rpx;
 }
 </style>
