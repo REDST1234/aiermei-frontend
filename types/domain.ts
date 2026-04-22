@@ -51,6 +51,7 @@ export interface ContentItem {
   liked?: boolean;
   content?: string;
   publishedAt?: string;
+  tags?: string[];
 }
 
 export interface ContentCategoryItem {

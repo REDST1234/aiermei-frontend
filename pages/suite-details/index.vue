@@ -68,7 +68,7 @@
                 <text class="facility-tag" v-for="f in selected.facilities" :key="f">{{ f }}</text>
               </view>
             </view>
-            <button class="book-btn">预约到店顾问</button>
+            <button class="book-btn" @click="handleBook">预约到店顾问</button>
           </view>
         </scroll-view>
       </view>
@@ -93,6 +93,7 @@ import { trackPath, getLocalProfile, getToken, setLocalProfile } from '@/store/s
 import { getCurrentUser } from '@/api/modules/member';
 import AuthModal from '@/components/AuthModal.vue';
 import type { Suite } from '@/types/domain';
+import { tracker } from '@/utils/tracker';
 
 const suites = ref<Suite[]>([]);
 const selected = ref<Suite | null>(null);
@@ -102,6 +103,23 @@ const showAuth = ref(false);
 
 function goBack() {
   uni.navigateBack();
+}
+
+function handleBook() {
+  if (selected.value) {
+    tracker.track('APPOINTMENT_INTENT', {
+      path: '/pages/suite-details/index',
+      pathName: '套房详情',
+      metadata: {
+        sourceType: 'suite',
+        sourceId: selected.value.id,
+        targetPackage: selected.value.name,
+        estimatedPrice: selected.value.price,
+        intentLevel: 'HIGH'
+      }
+    });
+    uni.showToast({ title: '预约功能在此为演示，埋点已发出', icon: 'none' });
+  }
 }
 
 function handleAuthSuccess() {

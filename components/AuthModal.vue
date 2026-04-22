@@ -17,6 +17,7 @@ import { ref } from 'vue';
 import { wechatLogin } from '@/api/modules/auth';
 import { getCurrentUser } from '@/api/modules/member';
 import { saveToken, setLoginState, getLocalProfile, setLocalProfile } from '@/store/session';
+import { tracker } from '@/utils/tracker';
 
 const props = defineProps<{ visible: boolean }>();
 const emit = defineEmits<{
@@ -67,6 +68,7 @@ async function handleLogin() {
 
       // 5. 通知父组件登录成功
       emit('success');
+      tracker.flush();
     } else {
       throw new Error(res.message || '登录失败');
     }

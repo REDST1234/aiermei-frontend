@@ -140,6 +140,7 @@ import { trackPath } from '@/store/session';
 import { getAiSessionMessages } from '@/api/modules/member';
 import type { ContentItem, FortuneCard, PresetQuestion } from '@/types/domain';
 import { marked } from 'marked';
+import { tracker } from '@/utils/tracker';
 
 // 配置 marked 选项
 marked.setOptions({
@@ -181,6 +182,9 @@ let currentSessionId: string | null = null;
 let nextCursor: string | undefined = undefined;
 let hasMoreHistory = false;
 let isLoadingHistory = ref(false);
+let latestUserMessageRendered = false;
+let pendingAiChatSessionId: string | null = null;
+let aiChatTrackedForCurrentSend = false;
 
 function formatDate(dateStr?: string): string {
   if (!dateStr) return '';
@@ -197,6 +201,14 @@ function getMonthShort(month: string): string {
 }
 
 async function switchTab(tabId: string) {
+  tracker.track('CLICK', {
+    path: '/pages/content/index',
+    pathName: '内容中心',
+    metadata: {
+      elementName: `内容分类-${tabId}`,
+      elementId: `tab-${tabId}`
+    }
+  });
   activeTab.value = tabId;
   await loadArticles(tabId);
 }
@@ -211,6 +223,14 @@ async function loadArticles(category: string) {
 }
 
 function openQa(item: PresetQuestion) {
+  tracker.track('CLICK', {
+    path: '/pages/content/index',
+    pathName: '内容中心',
+    metadata: {
+      elementName: '预设问答',
+      elementId: `qa-${item.id || item.question.slice(0, 20)}`
+    }
+  });
   selectedQa.value = item;
 }
 
@@ -233,6 +253,15 @@ function openAIChat() {
     profile.isLoggedIn = true;
     setLocalProfile(profile);
   }
+
+  tracker.track('CLICK', {
+    path: '/pages/content/index',
+    pathName: '内容中心',
+    metadata: {
+      elementName: '打开AI对话',
+      elementId: 'btn-open-ai-chat'
+    }
+  });
 
   isAIChatOpen.value = true;
 
@@ -339,6 +368,10 @@ function startTyping(greeting: string) {
 async function send() {
   const text = input.value.trim();
   if (!text) return;
+  if (sseConnection) {
+    uni.showToast({ title: '请等待当前回复完成', icon: 'none' });
+    return;
+  }
 
   const profile = getLocalProfile();
   if (!profile.isLoggedIn) {
@@ -349,7 +382,14 @@ async function send() {
   // 添加用户消息，并立即滚到底部
   messages.value.push({ role: 'user', text });
   input.value = '';
-  nextTick(() => scrollToBottom());
+  latestUserMessageRendered = false;
+  pendingAiChatSessionId = currentSessionId;
+  aiChatTrackedForCurrentSend = false;
+  nextTick(() => {
+    scrollToBottom();
+    latestUserMessageRendered = true;
+    tryTrackAiChat();
+  });
 
   // 添加 AI 占位气泡 + 等待动画
   const aiMessageIndex = messages.value.length;
@@ -368,6 +408,8 @@ async function send() {
         handleSSEEvent(event, aiMessageIndex);
       },
       onError: (error) => {
+        pendingAiChatSessionId = null;
+        aiChatTrackedForCurrentSend = true;
         messages.value[aiMessageIndex].isLoading = false;
         messages.value[aiMessageIndex].text = '抱歉，连接出现问题，请稍后重试。';
       },
@@ -376,6 +418,8 @@ async function send() {
       }
     });
   } catch (e) {
+    pendingAiChatSessionId = null;
+    aiChatTrackedForCurrentSend = true;
     messages.value[aiMessageIndex].isLoading = false;
     messages.value[aiMessageIndex].text = '抱歉，发送失败，请稍后重试。';
   }
@@ -388,6 +432,8 @@ function handleSSEEvent(event: SSEEvent, messageIndex: number) {
       // 保存 sessionId 到本地
       if (currentSessionId) {
         setAiSessionId(currentSessionId);
+        pendingAiChatSessionId = currentSessionId;
+        tryTrackAiChat();
       }
       break;
     case 'delta':
@@ -410,6 +456,20 @@ function handleSSEEvent(event: SSEEvent, messageIndex: number) {
       sseConnection = null;
       break;
   }
+}
+
+function tryTrackAiChat() {
+  if (!latestUserMessageRendered || aiChatTrackedForCurrentSend || !pendingAiChatSessionId) return;
+
+  tracker.track('AI_CHAT', {
+    path: '/pages/content/index',
+    pathName: 'AI内容问答',
+    metadata: {
+      sessionId: pendingAiChatSessionId
+    }
+  });
+
+  aiChatTrackedForCurrentSend = true;
 }
 
 function scrollToBottom() {

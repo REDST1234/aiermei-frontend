@@ -14,7 +14,7 @@
 
     <view class="actions">
       <button class="secondary-btn" @click="goCenter">查看中心</button>
-      <button class="primary-btn" @click="showQr = true">预约参观</button>
+      <button class="primary-btn" @click="handleAppointment">预约参观</button>
     </view>
 
     <view v-if="showQr" class="overlay" @click="showQr = false">
@@ -33,6 +33,7 @@ import { onLoad } from '@dcloudio/uni-app';
 import { getBannerDetail, getAppointmentQrCode } from '@/api/modules/center';
 import { trackPath } from '@/store/session';
 import type { BannerDetail } from '@/types/domain';
+import { tracker } from '@/utils/tracker';
 
 const showQr = ref(false);
 const qrCodeUrl = ref('https://picsum.photos/seed/qr/360/360');
@@ -43,12 +44,35 @@ const detail = ref<BannerDetail>({
   image: 'https://picsum.photos/seed/detail/800/1200'
 });
 
+function parseEstimatedPriceFromText(text: string): number | undefined {
+  const digits = text.replace(/[^\d]/g, '');
+  if (!digits) return undefined;
+  const parsed = Number(digits);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 function goBack() {
   uni.navigateBack();
 }
 
 function goCenter() {
   uni.reLaunch({ url: '/pages/center/index' });
+}
+
+function handleAppointment() {
+  showQr.value = true;
+  const estimatedPrice = parseEstimatedPriceFromText(detail.value.title || '');
+  tracker.track('APPOINTMENT_INTENT', {
+    path: '/pages/poster/detail',
+    pathName: '海报详情',
+    metadata: {
+      sourceType: 'banner',
+      sourceId: detail.value.id,
+      targetPackage: detail.value.title,
+      estimatedPrice,
+      intentLevel: 'MEDIUM'
+    }
+  });
 }
 
 onLoad(async (query) => {

@@ -131,6 +131,13 @@ export function mockRoute(url: string, method: string, data?: any): ApiResponse<
     case 'POST /api/v1/feedback/complaints':
       return createMockResponse({ complaintId: `complaint_${Date.now()}`, submitted: true });
 
+    // 埋点上报
+    case 'POST /api/v1/analytics/events/batch':
+      return createMockResponse({
+        accepted: Array.isArray(data?.events) ? data.events.length : 0,
+        deduplicated: 0
+      });
+
     // 管理后台
     case 'POST /api/v1/admin/analyze-profile':
       return createMockResponse(mockAnalysis);

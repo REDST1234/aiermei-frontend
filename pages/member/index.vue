@@ -100,6 +100,7 @@ import BottomNav from '@/components/BottomNav.vue';
 import { memberArticles } from '@/mock/data';
 import { getLocalProfile, setLoginState, setLocalProfile, trackPath, getToken, clearSession } from '@/store/session';
 import { getCurrentUser } from '@/api/modules/member';
+import { tracker } from '@/utils/tracker';
 
 const profile = ref(getLocalProfile());
 const showAuth = ref(false);
@@ -150,6 +151,15 @@ function openMagazine(id: string) {
 
 async function handleAuthSuccess() {
   showAuth.value = false;
+
+  tracker.track('LOGIN', {
+    path: '/pages/member/index',
+    pathName: '会员',
+    metadata: {
+      loginMethod: 'wechat_miniapp',
+      result: 'success'
+    }
+  });
 
   // 调用 /users/me 获取用户信息
   try {

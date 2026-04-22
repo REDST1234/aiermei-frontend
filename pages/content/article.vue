@@ -42,13 +42,45 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShow, onHide, onUnload } from '@dcloudio/uni-app';
+import { tracker } from '@/utils/tracker';
 import { getArticleDetail, reportArticleView, likeArticle, unlikeArticle } from '@/api/modules/content';
 import { getToken } from '@/store/session';
 import type { ContentItem } from '@/types/domain';
 
 const article = ref<ContentItem | null>(null);
 const isLiking = ref(false);
+const enterTime = ref(0);
+
+function reportLeave() {
+  if (article.value && enterTime.value > 0) {
+    const durationSent = Math.floor((Date.now() - enterTime.value) / 1000);
+    tracker.track('ARTICLE_VIEW', {
+      path: '/pages/content/article',
+      pathName: '文章详情',
+      durationSeconds: durationSent,
+      metadata: {
+        sourceId: article.value.id,
+        title: article.value.title,
+        category: article.value.category,
+        tags: article.value.tags || []
+      }
+    });
+    enterTime.value = 0;
+  }
+}
+
+onShow(() => {
+  enterTime.value = Date.now();
+});
+
+onHide(() => {
+  reportLeave();
+});
+
+onUnload(() => {
+  reportLeave();
+});
 
 function goBack() {
   uni.navigateBack();

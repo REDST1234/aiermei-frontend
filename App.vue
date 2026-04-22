@@ -1,7 +1,15 @@
-﻿<script>
+<script>
+import { tracker } from '@/utils/tracker';
+
 export default {
-  onLaunch() {
+  onLaunch(options) {
     console.log('App Launch');
+    if (options && options.query) {
+      tracker.setUtmParams(options.query);
+    }
+  },
+  onHide() {
+    tracker.flush(); // 切后台强制上报
   }
 };
 </script>
