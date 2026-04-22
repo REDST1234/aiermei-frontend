@@ -95,7 +95,8 @@
       <scroll-view
         scroll-y
         class="ai-messages"
-        :scroll-top="scrollTop"
+        :scroll-into-view="scrollAnchorId"
+        scroll-with-animation
         @scrolltoupper="loadMoreHistory"
       >
         <view v-if="isLoadingHistory" class="loading-history">加载历史消息...</view>
@@ -110,6 +111,7 @@
             </view>
           </view>
         </view>
+        <view id="msgBottom" style="height: 1px;"></view>
       </scroll-view>
       <view class="ai-preset-row">
         <text class="preset" v-for="(p, i) in presets" :key="i" @click="input = p">{{ p }}</text>
@@ -171,7 +173,7 @@ interface Message {
 
 const messages = ref<Message[]>([]);
 const input = ref('');
-const scrollTop = ref(0);
+const scrollAnchorId = ref('');
 const presets = ['剖宫产后多久能做康复？', '新生儿作息怎么建立？', '怎么选月子套餐？'];
 
 let sseConnection: UniApp.RequestTask | null = null;
@@ -266,10 +268,10 @@ async function loadHistoryMessages(cursor?: string) {
         role: msg.role === 'USER' ? 'user' : 'ai',
         text: msg.content,
         seqNo: msg.seqNo
-      })).reverse(); // 后端返回的是倒序，需要反转
+      })); // 后端已按 seqNo 升序返回，不再需要 reverse
 
       if (cursor) {
-        // 加载更多历史，插入到前面
+        // 加载更多历史，插入到前面；不强制滚底，避免打断用户上翻
         messages.value = [...historyMessages, ...messages.value];
       } else {
         // 首次加载历史
@@ -281,6 +283,8 @@ async function loadHistoryMessages(cursor?: string) {
             { role: 'ai', text: '你可以问我恢复、喂养、情绪或套餐问题。' }
           ];
         }
+        // 首次加载完成后滚到底部，让用户看到最新内容
+        nextTick(() => scrollToBottom());
       }
 
       nextCursor = res.data.nextCursor;
@@ -342,9 +346,10 @@ async function send() {
     return;
   }
 
-  // 添加用户消息
+  // 添加用户消息，并立即滚到底部
   messages.value.push({ role: 'user', text });
   input.value = '';
+  nextTick(() => scrollToBottom());
 
   // 添加 AI 占位气泡 + 等待动画
   const aiMessageIndex = messages.value.length;
@@ -408,8 +413,10 @@ function handleSSEEvent(event: SSEEvent, messageIndex: number) {
 }
 
 function scrollToBottom() {
+  // 先清空再设置，确保 scroll-into-view 能触发（即使锚点 id 相同）
+  scrollAnchorId.value = '';
   nextTick(() => {
-    scrollTop.value = scrollTop.value + 100;
+    scrollAnchorId.value = 'msgBottom';
   });
 }
 
@@ -754,6 +761,8 @@ onUnload(() => {
   transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .ai-drawer.open {
@@ -789,6 +798,8 @@ onUnload(() => {
 
 .ai-messages {
   flex: 1;
+  height: 0;
+  min-height: 0;
   padding: 24rpx;
   box-sizing: border-box;
 }

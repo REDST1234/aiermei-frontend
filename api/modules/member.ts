@@ -1,5 +1,5 @@
 import { httpRequest, createSSEConnection, type SSEEvent } from '@/api/http';
-import type { EvaluationReq, ComplaintReq, AiChatReq, AiChatStartEvent, AiChatDeltaEvent, AiChatSuggestionEvent, AiChatDoneEvent, AiChatErrorEvent, AiSessionMessagesResp } from '@/types/api';
+import type { EvaluationReq, ComplaintReq, AiChatReq, AiChatStartEvent, AiChatDeltaEvent, AiChatSuggestionEvent, AiChatDoneEvent, AiChatErrorEvent, AiSessionMessagesResp, UpdateUserReq } from '@/types/api';
 import type { Coupon, PostpartumService, FaqCategory, FaqItem, ServiceHotlines, Suite, MagazineDetail } from '@/types/domain';
 
 export function getCurrentUser() {
@@ -10,7 +10,7 @@ export function getCurrentUser() {
     phone?: string;
     memberLevel?: string;
     isLoggedIn: boolean;
-    pregnancyInfo?: { type: string; date: string };
+    pregnancyInfo?: { type: 'pregnancy' | 'postpartum'; date: string };
     tags?: string[];
     lastActive: string;
   }>({ url: '/api/v1/users/me' });
@@ -132,5 +132,22 @@ export function getAiSessionMessages(sessionId: string, cursor?: string, limit: 
   const query = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
   return httpRequest<AiSessionMessagesResp>({
     url: `/api/v1/ai/sessions/${sessionId}/messages${query}`
+  });
+}
+
+export function updateCurrentUser(payload: UpdateUserReq) {
+  return httpRequest<{
+    uid: string;
+    name: string;
+    avatar?: string;
+    phone?: string;
+    memberLevel?: string;
+    isLoggedIn: boolean;
+    pregnancyInfo?: { type: 'pregnancy' | 'postpartum'; date: string };
+    lastActive: string;
+  }>({
+    url: '/api/v1/users/me',
+    method: 'PUT',
+    data: payload
   });
 }

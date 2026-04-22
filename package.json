@@ -4,9 +4,12 @@
   "description": "爱儿美月子中心小程序前端",
   "private": true,
   "devDependencies": {
-    "@dcloudio/types": "^3.4.30"
+    "@dcloudio/types": "^3.4.30",
+    "@types/node": "^18.15.11"
   },
   "dependencies": {
+    "vue": "^3.2.47",
+    "@dcloudio/uni-app": "^3.0.0-alpha-3080220230511001",
     "marked": "^18.0.0"
   }
 }

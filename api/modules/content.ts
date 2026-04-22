@@ -24,3 +24,35 @@ export function getPresetQuestions(limit?: number) {
   const query = limit ? `?limit=${limit}` : '';
   return httpRequest<PresetQuestion[]>({ url: `/api/v1/content/preset-questions${query}` });
 }
+
+// 文章互动接口响应类型
+export interface ArticleStatsResponse {
+  articleId: string;
+  likes: number;
+  views: number;
+  liked: boolean | null;
+}
+
+// 浏览量上报（可匿名调用）
+export function reportArticleView(articleId: string) {
+  return httpRequest<ArticleStatsResponse>({
+    url: `/api/v1/content/articles/${articleId}/views`,
+    method: 'POST'
+  });
+}
+
+// 点赞
+export function likeArticle(articleId: string) {
+  return httpRequest<ArticleStatsResponse>({
+    url: `/api/v1/content/articles/${articleId}/likes`,
+    method: 'POST'
+  });
+}
+
+// 取消点赞
+export function unlikeArticle(articleId: string) {
+  return httpRequest<ArticleStatsResponse>({
+    url: `/api/v1/content/articles/${articleId}/likes`,
+    method: 'DELETE'
+  });
+}

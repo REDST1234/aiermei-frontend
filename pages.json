@@ -49,6 +49,12 @@
       }
     },
     {
+      "path": "pages/member/edit-profile",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/member-sub/index",
       "style": {
         "navigationStyle": "custom"

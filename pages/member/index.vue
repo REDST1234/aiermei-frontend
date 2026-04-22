@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="page member-page">
     <view class="member-head">
       <view class="brand-row">
@@ -9,10 +9,13 @@
           <image v-if="profile.avatar" :src="profile.avatar" mode="aspectFill" class="avatar-img" />
           <text v-else>AVATAR</text>
         </view>
-        <view>
+        <view class="profile-info">
           <view class="badge" v-if="profile.memberLevel">{{ getMemberLevelLabel(profile.memberLevel) }}</view>
           <view class="badge" v-else>访客</view>
           <view class="name">{{ profile.name || '未登录' }}</view>
+        </view>
+        <view class="edit-profile-btn" @click="openEditProfile" v-if="profile.isLoggedIn || getToken()">
+          <text class="edit-icon">⚙</text>
         </view>
       </view>
     </view>
@@ -194,6 +197,10 @@ function onFeatureChange(event: any) {
   articleIndex.value = event?.detail?.current || 0;
 }
 
+function openEditProfile() {
+  uni.navigateTo({ url: '/pages/member/edit-profile' });
+}
+
 onLoad(() => {
   trackPath('会员中心');
 });
@@ -251,6 +258,23 @@ onShow(async () => {
   display: flex;
   align-items: center;
   gap: 24rpx;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.edit-profile-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 10rpx;
+}
+
+.edit-icon {
+  font-size: 50rpx;
+  color: #6b7280;
 }
 
 .avatar {

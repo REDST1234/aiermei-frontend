@@ -85,3 +85,10 @@ export interface AiSessionMessagesResp {
   nextCursor?: string;
   hasMore: boolean;
 }
+
+export interface UpdateUserReq {
+  name?: string;
+  phone?: string;
+  pregnancyType?: 'pregnancy' | 'postpartum';
+  pregnancyDate?: string;
+}

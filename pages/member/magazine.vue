@@ -47,7 +47,7 @@ function formatDate(dateStr: string): string {
 }
 
 onLoad(async (query) => {
-  const magazineId = String(query.id || '');
+  const magazineId = String(query?.id || '');
   if (!magazineId) {
     uni.showToast({ title: '杂志ID不存在', icon: 'none' });
     return;

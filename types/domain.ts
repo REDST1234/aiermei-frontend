@@ -47,6 +47,8 @@ export interface ContentItem {
   category: ContentCategory;
   author: string;
   likes: number;
+  views?: number;
+  liked?: boolean;
   content?: string;
   publishedAt?: string;
 }

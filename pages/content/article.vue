@@ -18,9 +18,19 @@
           <view class="meta">
             <text>{{ article.author }}</text>
             <text class="dot">·</text>
+            <text>{{ formatViews(article.views) }} 浏览</text>
+            <text class="dot">·</text>
             <text>{{ formatLikes(article.likes) }} 喜欢</text>
           </view>
           <view class="text" v-html="article.content || '暂无内容'"></view>
+        </view>
+
+        <!-- 点赞区域 -->
+        <view class="like-bar">
+          <view class="like-btn" :class="{ liked: article.liked }" @click="toggleLike">
+            <text class="like-icon">{{ article.liked ? '❤' : '♡' }}</text>
+            <text class="like-count">{{ formatLikes(article.likes) }}</text>
+          </view>
         </view>
       </view>
       <view class="loading" v-else>
@@ -33,24 +43,70 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { getArticleDetail } from '@/api/modules/content';
+import { getArticleDetail, reportArticleView, likeArticle, unlikeArticle } from '@/api/modules/content';
+import { getToken } from '@/store/session';
 import type { ContentItem } from '@/types/domain';
 
 const article = ref<ContentItem | null>(null);
+const isLiking = ref(false);
 
 function goBack() {
   uni.navigateBack();
 }
 
-function formatLikes(likes: number): string {
+function formatLikes(likes?: number): string {
+  if (!likes) return '0';
   if (likes >= 1000) {
     return (likes / 1000).toFixed(1) + 'k';
   }
   return String(likes);
 }
 
+function formatViews(views?: number): string {
+  if (!views) return '0';
+  if (views >= 10000) {
+    return (views / 10000).toFixed(1) + 'w';
+  }
+  if (views >= 1000) {
+    return (views / 1000).toFixed(1) + 'k';
+  }
+  return String(views);
+}
+
+async function toggleLike() {
+  if (!article.value || isLiking.value) return;
+
+  // 检查登录状态
+  if (!getToken()) {
+    uni.showToast({ title: '请先登录后再点赞', icon: 'none' });
+    return;
+  }
+
+  isLiking.value = true;
+  try {
+    let res;
+    if (article.value.liked) {
+      res = await unlikeArticle(article.value.id);
+    } else {
+      res = await likeArticle(article.value.id);
+    }
+    if (res.code === 0 && res.data) {
+      article.value.liked = res.data.liked === true;
+      article.value.likes = res.data.likes;
+    }
+  } catch (e: any) {
+    if (e?.code === 4003) {
+      uni.showToast({ title: '请先登录后再点赞', icon: 'none' });
+    } else {
+      uni.showToast({ title: '操作失败，请稍后重试', icon: 'none' });
+    }
+  } finally {
+    isLiking.value = false;
+  }
+}
+
 onLoad(async (query) => {
-  const articleId = String(query.id || '');
+  const articleId = String(query?.id || '');
   if (!articleId) {
     uni.showToast({ title: '文章ID不存在', icon: 'none' });
     return;
@@ -58,6 +114,15 @@ onLoad(async (query) => {
   try {
     const res = await getArticleDetail(articleId);
     article.value = res.data;
+
+    // 上报浏览量（不阻塞页面加载）
+    reportArticleView(articleId).then(viewRes => {
+      if (viewRes.code === 0 && viewRes.data && article.value) {
+        article.value.views = viewRes.data.views;
+      }
+    }).catch(() => {
+      // 浏览量上报失败不影响页面展示
+    });
   } catch (e) {
     uni.showToast({ title: '加载失败', icon: 'none' });
   }
@@ -137,6 +202,7 @@ onLoad(async (query) => {
   display: flex;
   align-items: center;
   gap: 8rpx;
+  flex-wrap: wrap;
 }
 
 .dot {
@@ -148,6 +214,49 @@ onLoad(async (query) => {
   font-size: 30rpx;
   color: #374151;
   line-height: 1.9;
+}
+
+/* 点赞区域 */
+.like-bar {
+  display: flex;
+  justify-content: center;
+  padding: 30rpx 30rpx 20rpx;
+  border-top: 1rpx solid #f3f4f6;
+}
+
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx 48rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 9999rpx;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.like-btn.liked {
+  border-color: #fb7185;
+  background: #fff1f2;
+}
+
+.like-icon {
+  font-size: 42rpx;
+  color: #9ca3af;
+  line-height: 1;
+}
+
+.like-btn.liked .like-icon {
+  color: #fb7185;
+}
+
+.like-count {
+  font-size: 30rpx;
+  color: #6b7280;
+}
+
+.like-btn.liked .like-count {
+  color: #fb7185;
 }
 
 .loading {

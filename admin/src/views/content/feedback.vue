@@ -96,7 +96,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { mockEvaluations, mockComplaints } from '@/mock/data'
+import { getEvaluations, getComplaints, updateComplaintStatus } from '@/api/modules/feedback'
 import type { Evaluation, Complaint } from '@/types'
 import dayjs from 'dayjs'
 
@@ -136,14 +136,32 @@ function getComplaintStatusLabel(status: string) {
   return map[status] || status
 }
 
+async function loadData() {
+  try {
+    const [evalRes, compRes] = await Promise.all([
+      getEvaluations({ page: 1, pageSize: 50 }),
+      getComplaints({ page: 1, pageSize: 50 })
+    ])
+    evaluations.value = evalRes.data.list
+    complaints.value = compRes.data.list
+  } catch (e) {
+    console.error('Failed to load feedback data', e)
+  }
+}
+
 function processComplaint(complaint: Complaint) {
   ElMessageBox.confirm('确定开始处理该投诉？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'info'
-  }).then(() => {
-    complaint.status = 'processing'
-    ElMessage.success('已开始处理')
+  }).then(async () => {
+    try {
+      await updateComplaintStatus(complaint.id, 'processing')
+      complaint.status = 'processing'
+      ElMessage.success('已开始处理')
+    } catch (e) {
+      ElMessage.error('处理失败')
+    }
   }).catch(() => {})
 }
 
@@ -152,15 +170,19 @@ function resolveComplaint(complaint: Complaint) {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'info'
-  }).then(() => {
-    complaint.status = 'resolved'
-    ElMessage.success('投诉已解决')
+  }).then(async () => {
+    try {
+      await updateComplaintStatus(complaint.id, 'resolved')
+      complaint.status = 'resolved'
+      ElMessage.success('投诉已解决')
+    } catch (e) {
+      ElMessage.error('处理失败')
+    }
   }).catch(() => {})
 }
 
 onMounted(() => {
-  evaluations.value = [...mockEvaluations]
-  complaints.value = [...mockComplaints]
+  loadData()
 })
 </script>
 

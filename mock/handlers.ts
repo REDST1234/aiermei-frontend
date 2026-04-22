@@ -82,6 +82,24 @@ export function mockRoute(url: string, method: string, data?: any): ApiResponse<
         lastActive: new Date().toISOString()
       });
 
+    case 'PUT /api/v1/users/me': {
+      // Mock：将提交的字段合并回用户快照返回
+      const updatedUser = {
+        uid: 'user_123',
+        name: data?.name || '111房间号宝妈',
+        avatar: data?.avatar || 'https://picsum.photos/seed/avatar/200/200',
+        phone: data?.phone || '138****0000',
+        memberLevel: 'gold',
+        isLoggedIn: true,
+        pregnancyInfo: {
+          type: data?.pregnancyType || 'postpartum',
+          date: data?.pregnancyDate || '2026-08-15'
+        },
+        lastActive: new Date().toISOString()
+      };
+      return createMockResponse(updatedUser);
+    }
+
     case 'GET /api/v1/member/coupons':
       return createMockResponse(coupons);
 
@@ -176,6 +194,42 @@ export function mockRoute(url: string, method: string, data?: any): ApiResponse<
         const id = urlWithoutQuery.split('/').pop();
         const suite = suites.find((item) => item.id === id) || suites[0];
         return createMockResponse(suite);
+      }
+
+      // 文章互动：浏览量上报 POST /articles/{id}/views
+      if (method.toUpperCase() === 'POST' && urlWithoutQuery.match(/^\/api\/v1\/content\/articles\/[^/]+\/views$/)) {
+        const articleId = urlWithoutQuery.split('/')[5];
+        const article = contentItems.find(a => a.id === articleId);
+        return createMockResponse({
+          articleId,
+          likes: article?.likes ?? 0,
+          views: (article?.views ?? 0) + 1,
+          liked: null
+        });
+      }
+
+      // 文章互动：点赞 POST /articles/{id}/likes
+      if (method.toUpperCase() === 'POST' && urlWithoutQuery.match(/^\/api\/v1\/content\/articles\/[^/]+\/likes$/)) {
+        const articleId = urlWithoutQuery.split('/')[5];
+        const article = contentItems.find(a => a.id === articleId);
+        return createMockResponse({
+          articleId,
+          likes: (article?.likes ?? 0) + 1,
+          views: article?.views ?? 0,
+          liked: true
+        });
+      }
+
+      // 文章互动：取消点赞 DELETE /articles/{id}/likes
+      if (method.toUpperCase() === 'DELETE' && urlWithoutQuery.match(/^\/api\/v1\/content\/articles\/[^/]+\/likes$/)) {
+        const articleId = urlWithoutQuery.split('/')[5];
+        const article = contentItems.find(a => a.id === articleId);
+        return createMockResponse({
+          articleId,
+          likes: Math.max(0, (article?.likes ?? 1) - 1),
+          views: article?.views ?? 0,
+          liked: false
+        });
       }
 
       if (urlWithoutQuery.startsWith('/api/v1/content/articles/')) {

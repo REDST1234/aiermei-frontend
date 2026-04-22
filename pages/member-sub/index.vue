@@ -97,6 +97,24 @@
 
     <view class="body complaint-body" v-else-if="type === 'complaint'">
       <view class="card">
+        <view class="tip">联系人信息（选填）</view>
+        <view class="contact-row">
+          <input
+            class="contact-input"
+            v-model="contactName"
+            placeholder="姓名"
+            maxlength="20"
+          />
+          <input
+            class="contact-input"
+            v-model="contactPhone"
+            type="number"
+            placeholder="手机号"
+            maxlength="11"
+          />
+        </view>
+      </view>
+      <view class="card">
         <view class="tip">问题类型</view>
         <view class="type-grid">
           <view class="type-item" :class="{ active: complaintType === t.value }" v-for="t in complaintTypes" :key="t.value" @click="complaintType = t.value">{{ t.label }}</view>
@@ -129,6 +147,8 @@ const rating = ref(0);
 const content = ref('');
 const submitted = ref(false);
 const complaintType = ref<string>('SERVICE_QUALITY');
+const contactName = ref<string>('');
+const contactPhone = ref<string>('');
 const complaintTypes = [
   { value: 'SERVICE_QUALITY', label: '服务质量' },
   { value: 'FACILITY_ENVIRONMENT', label: '环境设施' },
@@ -182,7 +202,9 @@ async function submitComplaintAction() {
   try {
     await submitComplaint({
       content: content.value,
-      complaintType: complaintType.value as any
+      complaintType: complaintType.value as any,
+      contactName: contactName.value || undefined,
+      phone: contactPhone.value || undefined
     });
     submitted.value = true;
   } catch (e) {
@@ -259,7 +281,7 @@ async function loadByType() {
 }
 
 onLoad(async (query) => {
-  type.value = String(query.id || 'evaluation');
+  type.value = String(query?.id || 'evaluation');
   trackPath(`会员子页:${type.value}`);
   await loadByType();
 });
@@ -523,6 +545,22 @@ onLoad(async (query) => {
   background: #111827;
   color: #fff;
   border-color: #111827;
+}
+
+/* 联系人信息行 */
+.contact-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.contact-input {
+  flex: 1;
+  min-height: 76rpx;
+  border: 1rpx solid rgba(17, 24, 39, 0.12);
+  border-radius: 8rpx;
+  padding: 0 18rpx;
+  font-size: 28rpx;
+  background: #f9fafb;
 }
 
 /* 投诉建议页面样式 */

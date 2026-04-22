@@ -184,7 +184,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { mockArticles } from '@/mock/data'
+import { getArticles, createArticle, updateArticle, deleteArticle, publishArticle as apiPublishArticle, archiveArticle as apiArchiveArticle } from '@/api/modules/content'
 import ImageUpload from '@/components/ImageUpload.vue'
 import type { Article } from '@/types'
 import dayjs from 'dayjs'
@@ -251,28 +251,23 @@ function handleReset() {
   loadArticles()
 }
 
-function loadArticles() {
+async function loadArticles() {
   loading.value = true
-  setTimeout(() => {
-    let result = [...mockArticles]
-    
-    if (searchForm.category) {
-      result = result.filter(a => a.category === searchForm.category)
-    }
-    
-    if (searchForm.status) {
-      result = result.filter(a => a.status === searchForm.status)
-    }
-    
-    if (searchForm.keyword) {
-      result = result.filter(a => a.title.includes(searchForm.keyword))
-    }
-    
-    pagination.total = result.length
-    const start = (pagination.page - 1) * pagination.pageSize
-    articles.value = result.slice(start, start + pagination.pageSize)
+  try {
+    const res = await getArticles({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      category: searchForm.category || undefined,
+      status: searchForm.status || undefined,
+      keyword: searchForm.keyword || undefined
+    })
+    articles.value = res.data.list
+    pagination.total = res.data.total
+  } catch (e) {
+    ElMessage.error('加载文章失败')
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function showEditor(article?: Article) {
@@ -303,27 +298,56 @@ function showEditor(article?: Article) {
   editorVisible.value = true
 }
 
-function saveDraft() {
-  ElMessage.success('草稿已保存')
-  editorVisible.value = false
-  loadArticles()
+async function saveDraft() {
+  const payload: Partial<Article> = { ...articleForm, status: 'draft' }
+  try {
+    if (editingArticle.value) {
+      await updateArticle(editingArticle.value.id, payload)
+    } else {
+      await createArticle(payload)
+    }
+    ElMessage.success('草稿已保存')
+    editorVisible.value = false
+    loadArticles()
+  } catch (e) {
+    ElMessage.error('保存失败')
+  }
 }
 
-function saveAndPublish() {
-  ElMessage.success('文章已发布')
-  editorVisible.value = false
-  loadArticles()
+async function saveAndPublish() {
+  const payload: Partial<Article> = { ...articleForm, status: 'published' }
+  try {
+    if (editingArticle.value) {
+      await updateArticle(editingArticle.value.id, payload)
+    } else {
+      await createArticle(payload)
+    }
+    ElMessage.success('文章已发布')
+    editorVisible.value = false
+    loadArticles()
+  } catch (e) {
+    ElMessage.error('发布失败')
+  }
 }
 
-function publishArticle(article: Article) {
-  article.status = 'published'
-  article.publishedAt = new Date().toISOString()
-  ElMessage.success('文章已发布')
+async function publishArticle(article: Article) {
+  try {
+    await apiPublishArticle(article.id)
+    ElMessage.success('文章已发布')
+    loadArticles()
+  } catch (e) {
+    ElMessage.error('发布失败')
+  }
 }
 
-function archiveArticle(article: Article) {
-  article.status = 'archived'
-  ElMessage.success('文章已归档')
+async function archiveArticle(article: Article) {
+  try {
+    await apiArchiveArticle(article.id)
+    ElMessage.success('文章已归档')
+    loadArticles()
+  } catch (e) {
+    ElMessage.error('归档失败')
+  }
 }
 
 function deleteArticleHandle(article: Article) {
@@ -331,12 +355,14 @@ function deleteArticleHandle(article: Article) {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
-    const index = articles.value.findIndex(a => a.id === article.id)
-    if (index > -1) {
-      articles.value.splice(index, 1)
+  }).then(async () => {
+    try {
+      await deleteArticle(article.id)
+      ElMessage.success('文章已删除')
+      loadArticles()
+    } catch (e) {
+      ElMessage.error('删除失败')
     }
-    ElMessage.success('文章已删除')
   }).catch(() => {})
 }
 

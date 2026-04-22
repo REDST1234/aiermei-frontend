@@ -53,12 +53,12 @@ export const contentCategories: ContentCategoryItem[] = [
 ];
 
 export const contentItems: ContentItem[] = [
-  { id: '1', title: '新生儿睡眠节律怎么建立', cover: 'https://picsum.photos/seed/baby1/400/600', type: 'image', category: 'parenting', author: '爱儿美顾问', likes: 1240 },
-  { id: '2', title: '顺产后第2周恢复建议', cover: 'https://picsum.photos/seed/recovery1/400/500', type: 'image', category: 'postpartum', author: '康复治疗师', likes: 856 },
-  { id: '3', title: '高端月子房环境实拍', cover: 'https://picsum.photos/seed/room1/400/700', type: 'video', category: 'pregnancy', author: '中心运营', likes: 3421 },
-  { id: '4', title: '产后心理支持如何介入', cover: 'https://picsum.photos/seed/care1/400/550', type: 'image', category: 'postpartum', author: '心理咨询师', likes: 2100 },
-  { id: '5', title: '待产包怎么准备更高效', cover: 'https://picsum.photos/seed/prep1/400/650', type: 'image', category: 'pregnancy', author: '护士长', likes: 1560 },
-  { id: '6', title: '宝宝喂养常见误区', cover: 'https://picsum.photos/seed/sleep1/400/600', type: 'image', category: 'parenting', author: '母乳顾问', likes: 980 }
+  { id: '1', title: '新生儿睡眠节律怎么建立', cover: 'https://picsum.photos/seed/baby1/400/600', type: 'image', category: 'parenting', author: '爱儿美顾问', likes: 1240, views: 3580, liked: false },
+  { id: '2', title: '顺产后第2周恢复建议', cover: 'https://picsum.photos/seed/recovery1/400/500', type: 'image', category: 'postpartum', author: '康复治疗师', likes: 856, views: 2140, liked: false },
+  { id: '3', title: '高端月子房环境实拍', cover: 'https://picsum.photos/seed/room1/400/700', type: 'video', category: 'pregnancy', author: '中心运营', likes: 3421, views: 9860, liked: false },
+  { id: '4', title: '产后心理支持如何介入', cover: 'https://picsum.photos/seed/care1/400/550', type: 'image', category: 'postpartum', author: '心理咨询师', likes: 2100, views: 5230, liked: false },
+  { id: '5', title: '待产包怎么准备更高效', cover: 'https://picsum.photos/seed/prep1/400/650', type: 'image', category: 'pregnancy', author: '护士长', likes: 1560, views: 4100, liked: false },
+  { id: '6', title: '宝宝喂养常见误区', cover: 'https://picsum.photos/seed/sleep1/400/600', type: 'image', category: 'parenting', author: '母乳顾问', likes: 980, views: 2760, liked: false }
 ];
 
 export const fortuneCard: FortuneCard = {
