@@ -398,5 +398,6 @@ export interface LoginRequest {
 // 登录响应
 export interface LoginResponse {
   token: string;
+  principalType: 'ADMIN' | 'STAFF';
   user: AdminUser;
 }

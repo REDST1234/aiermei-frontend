@@ -1,9 +1,16 @@
-﻿<template>
+<template>
   <div class="login-page">
     <div class="login-card">
       <div class="login-header">
         <div class="brand">AI ER MEI</div>
         <div class="subtitle">月子中心管理后台</div>
+      </div>
+      
+      <div class="login-type">
+        <el-radio-group v-model="loginType" size="large">
+          <el-radio-button value="staff">员工</el-radio-button>
+          <el-radio-button value="admin">管理员</el-radio-button>
+        </el-radio-group>
       </div>
 
       <el-form ref="formRef" :model="form" :rules="rules" class="login-form" @submit.prevent="handleLogin">
@@ -36,9 +43,9 @@
       </el-form>
 
       <div v-if="showMockTips" class="mock-tips">
-        <div class="mock-title">Mock 测试账号</div>
-        <div class="mock-item">管理员：<b>admin / admin123</b></div>
-        <div class="mock-item">员工：<b>staff / staff123</b></div>
+        <div class="mock-title">Mock 测试账号 ({{ loginType === 'admin' ? '管理员' : '员工' }})</div>
+        <div v-if="loginType === 'admin'" class="mock-item">账号：<b>admin / admin123</b></div>
+        <div v-else class="mock-item">账号：<b>staff / staff123</b></div>
       </div>
     </div>
   </div>
@@ -58,6 +65,7 @@ const userStore = useUserStore()
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const loginType = ref<'admin' | 'staff'>('staff')
 const showMockTips = import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK === 'true'
 
 const form = reactive({
@@ -79,7 +87,7 @@ async function handleLogin() {
     const res = await loginApi({
       username: form.username,
       password: form.password
-    })
+    }, loginType.value)
 
     userStore.login(res.data.token, res.data.user)
     ElMessage.success('登录成功')
@@ -139,6 +147,30 @@ async function handleLogin() {
 
 .login-form :deep(.el-input__wrapper) {
   border-radius: 8px;
+}
+
+.login-type {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.login-type :deep(.el-radio-button__inner) {
+  width: 120px;
+  border-radius: 8px !important;
+  margin: 0 4px;
+  border: 1px solid #dcdfe6 !important;
+}
+
+.login-type :deep(.el-radio-button:first-child .el-radio-button__inner) {
+  border-left: 1px solid #dcdfe6 !important;
+}
+
+.login-type :deep(.el-radio-button.is-active .el-radio-button__inner) {
+  background-color: #111827;
+  border-color: #111827 !important;
+  color: #fff;
+  box-shadow: none !important;
 }
 
 .login-btn {

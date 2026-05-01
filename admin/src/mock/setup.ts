@@ -1,4 +1,4 @@
-﻿import instance from '../api/request'
+import instance from '../api/request'
 import {
   mockAdminUser,
   mockAnalysisResult,
@@ -247,23 +247,31 @@ export function setupMock() {
     await new Promise((resolve) => setTimeout(resolve, 120))
 
     // Auth
-    if (path === '/admin/auth/login' && method === 'POST') {
+    if ((path === '/admin/auth/login' || path === '/staff/auth/login') && method === 'POST') {
+      const isStaffLogin = path.includes('/staff/')
       const username = String(body.username || '').trim()
       const password = String(body.password || '')
+      
+      // Mock credentials check
       const isAdminCred = username === 'admin' && password === 'admin123'
       const isStaffCred = username === 'staff' && password === 'staff123'
-      if (!isAdminCred && !isStaffCred) {
-        return createResponse(config, null, 4000, '用户名或密码错误')
+      
+      if (isStaffLogin && !isStaffCred) {
+        return createResponse(config, null, 4000, '员工用户名或密码错误')
       }
-      const isAdmin = username === 'admin'
+      if (!isStaffLogin && !isAdminCred) {
+        return createResponse(config, null, 4000, '管理员用户名或密码错误')
+      }
+
       return createResponse(config, {
         token: `demo_token_${Date.now()}`,
+        principalType: isStaffLogin ? 'STAFF' : 'ADMIN',
         user: {
           ...mockAdminUser,
           username,
-          name: isAdmin ? '管理员' : `${username}（员工）`,
-          role: isAdmin ? 'admin' : 'staff',
-          permissions: isAdmin ? ['*'] : ['employee.portal'],
+          name: isStaffLogin ? '员工客服' : '超级管理员',
+          role: isStaffLogin ? 'staff' : 'admin',
+          permissions: isStaffLogin ? ['employee.portal'] : ['*'],
           lastLoginAt: now()
         }
       })

@@ -1,4 +1,4 @@
-﻿import { get, post } from '../request'
+import { get, post } from '../request'
 import type {
   AdminUser,
   AnalysisResult,
@@ -10,8 +10,8 @@ import type {
   UserJourney
 } from '@/types'
 
-export function login(data: LoginRequest) {
-  return post<LoginResponse>('/admin/auth/login', data)
+export function login(data: LoginRequest, type: 'admin' | 'staff' = 'admin') {
+  return post<LoginResponse>(`/${type}/auth/login`, data)
 }
 
 export function getCurrentAdmin() {
