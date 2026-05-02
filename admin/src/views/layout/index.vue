@@ -79,6 +79,7 @@ import {
   Expand,
   Fold,
   OfficeBuilding,
+  Memo,
   Setting,
   Ticket,
   TrendCharts,
@@ -112,7 +113,8 @@ const employeeMenus: MenuNode[] = [
       { index: '/content/articles', title: '文章管理' },
       { index: '/content/banners', title: '海报管理' },
       { index: '/content/magazines', title: '杂志管理' },
-      { index: '/content/suites', title: '套餐管理' }
+      { index: '/content/suites', title: '套餐管理' },
+      { index: '/content/facilities', title: '设施管理' }
     ]
   },
   {
@@ -134,7 +136,7 @@ const adminMenus: MenuNode[] = [
   { index: '/console/approvals', title: '标签审批池', icon: Checked },
   { index: '/console/scoring', title: '评分权重', icon: DataLine },
   { index: '/console/decay', title: '衰减参数', icon: TrendCharts },
-  { index: '/console/facilities', title: '设施字典管理', icon: OfficeBuilding }
+  { index: '/console/dictionary', title: '字典管理', icon: Memo }
 ]
 
 const visibleMenus = computed(() => (userStore.isAdmin ? adminMenus : employeeMenus))

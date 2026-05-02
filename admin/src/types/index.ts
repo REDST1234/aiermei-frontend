@@ -137,6 +137,15 @@ export interface UploadFileResponse {
   uploadedAt: string;
 }
 
+export interface AdminTagDictItem {
+  tagCode: string;
+  tagName: string;
+  description: string;
+  status: string;
+  sortNo: number;
+  useCount: number;
+}
+
 // 用户信息（C端用户）
 export interface Customer {
   uid: string;

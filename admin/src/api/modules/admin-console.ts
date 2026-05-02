@@ -1,7 +1,7 @@
 import { useUserStore } from '@/stores/user'
-﻿import { del, get, post, put, request } from '../request'
+import { del, get, post, put, request } from '../request'
 import type {
-  CenterFacility,
+  AdminTagDictItem,
   DecayConfigItem,
   PageResponse,
   ScoringWeights,
@@ -50,20 +50,14 @@ export function getTrafficSources(days: number) {
   return get<TrafficSourcesStat>(`${useUserStore().apiPrefix}/dashboard/traffic-sources`, { days })
 }
 
-export function getCenterFacilities() {
-  return get<CenterFacility[]>(`${useUserStore().apiPrefix}/centers/facilities`)
+// ============ 标签字典 ============
+
+export function getTagDictionary(params: { keyword?: string; status?: string }) {
+  return get<AdminTagDictItem[]>(`${useUserStore().apiPrefix}/tag-dictionary`, params)
 }
 
-export function createCenterFacility(data: Omit<CenterFacility, 'id'>) {
-  return post<CenterFacility>(`${useUserStore().apiPrefix}/centers/facilities`, data)
-}
-
-export function updateCenterFacility(id: string, data: Partial<Omit<CenterFacility, 'id'>>) {
-  return put<CenterFacility>(`${useUserStore().apiPrefix}/centers/facilities/${id}`, data)
-}
-
-export function deleteCenterFacility(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/centers/facilities/${id}`)
+export function updateTagDictionary(tagCode: string, data: Partial<AdminTagDictItem>) {
+  return put<AdminTagDictItem>(`${useUserStore().apiPrefix}/tag-dictionary/${tagCode}`, data)
 }
 
 export function uploadFile(file: File, bizType: string) {

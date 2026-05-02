@@ -1,5 +1,6 @@
 import { useUserStore } from '@/stores/user'
 import { get, post, put, del } from '../request'
+import type { CenterFacility } from '@/types'
 
 // 中心板块
 export interface CenterSection {
@@ -57,4 +58,22 @@ export function updateCenterSection(id: string, data: Partial<CenterSection>) {
 
 export function deleteCenterSection(id: string) {
   return del<void>(`${useUserStore().apiPrefix}/centers/sections/${id}`)
+}
+
+// ============ 设施管理 ============
+
+export function getCenterFacilities() {
+  return get<CenterFacility[]>(`${useUserStore().apiPrefix}/centers/facilities`)
+}
+
+export function createCenterFacility(data: Omit<CenterFacility, 'id'>) {
+  return post<CenterFacility>(`${useUserStore().apiPrefix}/centers/facilities`, data)
+}
+
+export function updateCenterFacility(id: string, data: Partial<Omit<CenterFacility, 'id'>>) {
+  return put<CenterFacility>(`${useUserStore().apiPrefix}/centers/facilities/${id}`, data)
+}
+
+export function deleteCenterFacility(id: string) {
+  return del<void>(`${useUserStore().apiPrefix}/centers/facilities/${id}`)
 }

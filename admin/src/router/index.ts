@@ -49,6 +49,12 @@ const employeeChildren: RouteRecordRaw[] = [
         name: 'Suites',
         component: () => import('@/views/content/suites.vue'),
         meta: { title: '套餐管理', roles: ['editor', 'viewer', 'staff'] }
+      },
+      {
+        path: 'facilities',
+        name: 'Facilities',
+        component: () => import('@/views/content/facilities.vue'),
+        meta: { title: '设施管理', roles: ['editor', 'viewer', 'staff'] }
       }
     ]
   },
@@ -118,10 +124,10 @@ const adminChildren: RouteRecordRaw[] = [
     meta: { title: '衰减参数', icon: 'TrendCharts', roles: ['admin'] }
   },
   {
-    path: 'console/facilities',
-    name: 'CenterFacilities',
-    component: () => import('@/views/console/center-facilities.vue'),
-    meta: { title: '设施字典管理', icon: 'OfficeBuilding', roles: ['admin'] }
+    path: 'console/dictionary',
+    name: 'TagDictionary',
+    component: () => import('@/views/console/dictionary.vue'),
+    meta: { title: '字典管理', icon: 'Memo', roles: ['admin'] }
   },
   {
     path: 'console/accounts',
