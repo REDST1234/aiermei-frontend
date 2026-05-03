@@ -20,7 +20,7 @@ export function setLocalProfile(profile: UserProfile) {
 
 export function trackPath(path: string) {
   const profile = getLocalProfile();
-  profile.paths.push({ path, timestamp: Date.now() });
+  (profile.paths ??= []).push({ path, timestamp: Date.now() });
   profile.lastActive = Date.now();
   setLocalProfile(profile);
 }
