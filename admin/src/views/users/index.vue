@@ -20,7 +20,7 @@
       <div class="card-grid">
         <article v-for="user in users" :key="user.uid" class="lead-card">
           <div 
-            v-if="user.manualTotalScore !== undefined" 
+            v-if="typeof user.manualTotalScore === 'number'" 
             :class="['score-badge', { 'is-updating': updatingUids.has(user.uid) }]" 
             title="后端综合评分"
           >
@@ -48,6 +48,7 @@
             <el-tag v-for="(tag, index) in user.tags.slice(0, 4)" :key="getTagKey(tag, index)" effect="plain" round>
               {{ getTagName(tag) }}
             </el-tag>
+            <span v-if="!user.tags?.length" class="tag-placeholder">tag尚未分析</span>
           </div>
 
           <p :class="['quote', { 'is-updating': updatingUids.has(user.uid) }]">{{ insightPreview(user) }}</p>
@@ -55,15 +56,21 @@
           <div class="metric-row" title="点击查看详细行为路径" @click="openProfileDialog(user, 'logs')">
             <div class="metric-item">
               <label>意向</label>
-              <b class="c-intent">{{ metricPreview(user, 'conversionIntent') }}%</b>
+              <b class="c-intent">
+                {{ metricPreview(user, 'conversionIntent') }}{{ typeof metricPreview(user, 'conversionIntent') === 'number' ? '%' : '' }}
+              </b>
             </div>
             <div class="metric-item">
               <label>消费</label>
-              <b class="c-spending">{{ metricPreview(user, 'spendingPower') }}%</b>
+              <b class="c-spending">
+                {{ metricPreview(user, 'spendingPower') }}{{ typeof metricPreview(user, 'spendingPower') === 'number' ? '%' : '' }}
+              </b>
             </div>
             <div class="metric-item">
               <label>急迫</label>
-              <b class="c-urgency">{{ metricPreview(user, 'urgency') }}%</b>
+              <b class="c-urgency">
+                {{ metricPreview(user, 'urgency') }}{{ typeof metricPreview(user, 'urgency') === 'number' ? '%' : '' }}
+              </b>
             </div>
           </div>
 
@@ -139,7 +146,7 @@
             <el-icon class="ai-sparkle"><MagicStick /></el-icon>
             AI洞察摘要
           </div>
-          <p>{{ analysisResult.script || '暂无AI摘要' }}</p>
+          <p>{{ analysisResult.summary || '暂无AI摘要' }}</p>
         </section>
 
         <el-tabs v-model="activeTab" class="detail-tabs">
@@ -177,7 +184,7 @@
             <section class="panel">
               <h3>标签纠偏与完善</h3>
               <p class="subtle">点击标签可溯源，关闭图标用于删除标签</p>
-              <div class="tag-row">
+              <div class="tag-row correction-tag-row">
                 <el-tag
                   v-for="tag in customerTags"
                   :key="tag.tagCode"
@@ -209,9 +216,24 @@
               <section class="panel">
                 <h3>行为路径溯源</h3>
                 <div class="journey-list">
-                  <div v-for="(item, index) in userJourney.paths" :key="`${item.path}-${index}`" class="journey-item">
-                    <span>{{ item.path }}</span>
-                    <span class="subtle">{{ formatDate(item.timestamp) }}</span>
+                  <div v-for="(item, index) in userJourney.paths" :key="`${item.eventId || item.path}-${index}`" class="journey-item">
+                    <div class="journey-main">
+                      <div class="journey-title">
+                        <span class="display-name">{{ item.displayName || item.path }}</span>
+                        <span v-if="item.repeatCount && item.repeatCount > 1" class="repeat-badge">x{{ item.repeatCount }}</span>
+                        <span class="timestamp">{{ formatDate(item.timestamp) }}</span>
+                      </div>
+                      <div v-if="item.context" class="journey-context">{{ item.context }}</div>
+                      <div v-else class="journey-path-fallback">{{ item.path }}</div>
+                      
+                      <div v-if="item.metadata && Object.keys(item.metadata).length > 0" class="journey-metadata">
+                        <el-collapse class="metadata-collapse">
+                          <el-collapse-item :title="`查看元数据 (${Object.keys(item.metadata).length})`" :name="1">
+                            <pre class="metadata-pre">{{ JSON.stringify(item.metadata, null, 2) }}</pre>
+                          </el-collapse-item>
+                        </el-collapse>
+                      </div>
+                    </div>
                   </div>
                   <span v-if="!userJourney.paths.length" class="subtle">暂无路径数据</span>
                 </div>
@@ -234,20 +256,22 @@
 
     <el-dialog v-model="tagTraceVisible" width="560px" title="标签溯源记录" append-to-body destroy-on-close>
       <div class="trace-head">标签：{{ activeTraceTagName }}</div>
-      <el-timeline v-loading="tagTraceLoading">
-        <el-timeline-item
-          v-for="item in tagTraceRecords"
-          :key="item.id"
-          :timestamp="formatDate(item.occurredAt)"
-          placement="top"
-        >
-          <div class="trace-item">
-            <p class="trace-meta">来源：{{ sourceTypeLabel(item.sourceType) }} · 事件：{{ eventTypeLabel(item.sourceEventType) }}</p>
-            <p class="trace-context">{{ item.sourceContext }}</p>
-          </div>
-        </el-timeline-item>
-      </el-timeline>
-      <el-empty v-if="!tagTraceLoading && !tagTraceRecords.length" description="暂无溯源记录" />
+      <div class="trace-content">
+        <el-timeline v-loading="tagTraceLoading">
+          <el-timeline-item
+            v-for="item in tagTraceRecords"
+            :key="item.id"
+            :timestamp="formatDate(item.occurredAt)"
+            placement="top"
+          >
+            <div class="trace-item">
+              <p class="trace-meta">来源：{{ sourceTypeLabel(item.sourceType) }} · 事件：{{ eventTypeLabel(item.sourceEventType) }}</p>
+              <p class="trace-context">{{ item.sourceContext }}</p>
+            </div>
+          </el-timeline-item>
+        </el-timeline>
+        <el-empty v-if="!tagTraceLoading && !tagTraceRecords.length" description="暂无溯源记录" />
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -285,7 +309,7 @@ const users = ref<Customer[]>([])
 const profileDialogVisible = ref(false)
 const selectedUser = ref<Customer | null>(null)
 const userJourney = ref<UserJourney>({ uid: '', paths: [], tags: [], lastActive: '' })
-const analysisResult = ref<AnalysisResult>({ tags: [], script: '' })
+const analysisResult = ref<AnalysisResult>({ tags: [], summary: '' })
 const customerTags = ref<CustomerTag[]>([])
 const tagCorrectionLogs = ref<CustomerTagCorrectionLog[]>([])
 const tagTraceVisible = ref(false)
@@ -394,17 +418,11 @@ function metricPreview(user: Customer, type: 'conversionIntent' | 'spendingPower
     if (typeof hit === 'number') return hit
     if (hit && typeof hit.score === 'number') return hit.score
   }
-  const seed = Number(user.uid.replace(/\D/g, '')) % 100
-  if (type === 'conversionIntent') return Math.max(40, Math.min(95, 45 + (seed % 50)))
-  if (type === 'spendingPower') return Math.max(45, Math.min(96, 50 + ((seed + 9) % 45)))
-  return Math.max(30, Math.min(92, 35 + ((seed + 17) % 50)))
+  return '未评分'
 }
 
 function insightPreview(user: Customer) {
-  if (user.profileSummary) return user.profileSummary
-  const tags = user.tags.slice(0, 3).map((x) => getTagName(x)).filter(Boolean)
-  if (!tags.length) return '近期互动稳定，建议补充线下沟通记录完善画像。'
-  return `重点关注：${tags.join('、')}。建议结合到店沟通进一步核验。`
+  return user.profileSummary || '未备注'
 }
 
 function sourceTypeLabel(sourceType: string) {
@@ -423,6 +441,8 @@ function eventTypeLabel(eventType?: string) {
     AI_CHAT: 'AI对话消息',
     PAGE_VIEW: '页面访问事件',
     ARTICLE_VIEW: '文章阅读事件',
+    CLICK: '点击事件',
+    APPOINTMENT_INTENT: '预约意向',
     MANUAL_TAG_ADD: '人工补录标签'
   }
   return map[eventType] || eventType
@@ -459,7 +479,7 @@ async function loadProfileData(uid: string) {
     const [detailRes, journeyRes, analysisRes, tagsRes, scoreDraftRes, logsRes] = await Promise.all([
       getCustomerDetail(uid).catch(() => ({ data: selectedUser.value })),
       getUserJourney(uid, 100).catch(() => ({ data: { paths: [] } })),
-      analyzeUserApi(uid, false).catch(() => ({ data: { script: '分析加载失败' } })),
+      analyzeUserApi(uid, false).catch(() => ({ data: { summary: '分析加载失败' } })),
       getCustomerTags(uid).catch(() => ({ data: [] })),
       getCustomerManualScoreDraft(uid).catch(() => ({ data: null })),
       getCustomerTagCorrectionLogs(uid).catch(() => ({ data: [] }))
@@ -696,6 +716,16 @@ onMounted(() => {
   max-height: 56px;
   overflow: hidden;
   align-content: flex-start;
+}
+
+.tag-placeholder {
+  font-size: 12px;
+  color: #9aa3b2;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding-left: 4px;
 }
 
 .quote {
@@ -990,6 +1020,7 @@ onMounted(() => {
   padding: 0 16px !important;
   display: inline-flex;
   align-items: center;
+  margin-bottom: 8px; /* 增加行间距 */
 
   .tag-decay {
     margin-left: 8px;
@@ -1002,9 +1033,51 @@ onMounted(() => {
   }
 }
 
+.correction-tag-row {
+  max-height: 148px; /* 约 3 行标签的高度 + 间距 */
+  overflow-y: auto;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #edf2f7;
+  gap: 8px !important;
+  align-content: flex-start;
+
+  /* 自定义滚动条 */
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
 .trace-head {
-  margin-bottom: 6px;
+  margin-bottom: 12px;
   color: #5f6b7a;
+  padding: 0 4px;
+}
+
+.trace-content {
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 4px 8px 0 4px;
+
+  /* 自定义滚动条样式 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .trace-meta {
@@ -1111,5 +1184,94 @@ onMounted(() => {
   box-shadow: 0 6px 16px rgba(20, 184, 166, 0.45);
 }
 
+
+.journey-item {
+  border-bottom: 1px solid #f0f2f5;
+  padding: 12px 0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.journey-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.display-name {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.repeat-badge {
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 11px;
+  padding: 0 6px;
+  border-radius: 10px;
+  border: 1px solid #fee2e2;
+}
+
+.timestamp {
+  margin-left: auto;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.journey-context {
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+.journey-path-fallback {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.journey-metadata {
+  margin-top: 8px;
+}
+
+.metadata-collapse {
+  border: none !important;
+  
+  :deep(.el-collapse-item__header) {
+    height: 32px;
+    line-height: 32px;
+    background: #f9fafb;
+    border-radius: 4px;
+    padding: 0 8px;
+    font-size: 12px;
+    color: #6b7280;
+    border: none;
+  }
+  
+  :deep(.el-collapse-item__wrap) {
+    background: transparent;
+    border: none;
+  }
+  
+  :deep(.el-collapse-item__content) {
+    padding: 8px;
+  }
+}
+
+.metadata-pre {
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow-x: auto;
+  margin: 0;
+}
 
 </style>

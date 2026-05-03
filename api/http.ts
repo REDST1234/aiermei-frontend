@@ -111,7 +111,7 @@ export function createSSEConnection(options: SSEOptions): UniApp.RequestTask {
     }
   });
 
-  requestTask.onChunkReceived?.((response) => {
+  (requestTask as any).onChunkReceived?.((response: { data: ArrayBuffer }) => {
     try {
       const chunk = new Uint8Array(response.data);
       let text = '';

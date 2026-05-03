@@ -158,6 +158,18 @@
     },
     {
       "name": "Admin Backoffice Accounts"
+    },
+    {
+      "name": "Staff Postpartum Services"
+    },
+    {
+      "name": "Staff Feedback"
+    },
+    {
+      "name": "Staff Preset Questions"
+    },
+    {
+      "name": "Staff Dashboard"
     }
   ],
   "paths": {
@@ -1422,10 +1434,10 @@
     },
     "/api/v1/banners": {
       "get": {
-        "summary": "listBanners",
+        "summary": "listBanners_1",
         "deprecated": false,
         "description": "",
-        "operationId": "listBanners",
+        "operationId": "listBanners_1",
         "tags": [
           "banner-controller"
         ],
@@ -1459,10 +1471,10 @@
     },
     "/api/v1/banners/{id}": {
       "get": {
-        "summary": "getBannerDetail",
+        "summary": "getBannerDetail_1",
         "deprecated": false,
         "description": "",
-        "operationId": "getBannerDetail",
+        "operationId": "getBannerDetail_1",
         "tags": [
           "banner-controller"
         ],
@@ -1897,10 +1909,10 @@
     },
     "/api/v1/admin/feedback/complaints/{id}/status": {
       "put": {
-        "summary": "updateComplaintStatus",
+        "summary": "updateComplaintStatus_1",
         "deprecated": false,
         "description": "",
-        "operationId": "updateComplaintStatus",
+        "operationId": "updateComplaintStatus_1",
         "tags": [
           "admin-feedback-controller"
         ],
@@ -1954,10 +1966,10 @@
     },
     "/api/v1/admin/feedback/evaluations": {
       "get": {
-        "summary": "listEvaluations",
+        "summary": "listEvaluations_1",
         "deprecated": false,
         "description": "",
-        "operationId": "listEvaluations",
+        "operationId": "listEvaluations_1",
         "tags": [
           "admin-feedback-controller"
         ],
@@ -2021,10 +2033,10 @@
     },
     "/api/v1/admin/feedback/evaluations/{id}": {
       "get": {
-        "summary": "getEvaluationDetail",
+        "summary": "getEvaluationDetail_1",
         "deprecated": false,
         "description": "",
-        "operationId": "getEvaluationDetail",
+        "operationId": "getEvaluationDetail_1",
         "tags": [
           "admin-feedback-controller"
         ],
@@ -2068,10 +2080,10 @@
     },
     "/api/v1/admin/feedback/complaints": {
       "get": {
-        "summary": "listComplaints",
+        "summary": "listComplaints_1",
         "deprecated": false,
         "description": "",
-        "operationId": "listComplaints",
+        "operationId": "listComplaints_1",
         "tags": [
           "admin-feedback-controller"
         ],
@@ -2134,10 +2146,10 @@
     },
     "/api/v1/admin/feedback/complaints/{id}": {
       "get": {
-        "summary": "getComplaintDetail",
+        "summary": "getComplaintDetail_1",
         "deprecated": false,
         "description": "",
-        "operationId": "getComplaintDetail",
+        "operationId": "getComplaintDetail_1",
         "tags": [
           "admin-feedback-controller"
         ],
@@ -2181,10 +2193,10 @@
     },
     "/api/v1/admin/content/banners/{id}": {
       "get": {
-        "summary": "getBannerDetail_1",
+        "summary": "getBannerDetail_2",
         "deprecated": false,
         "description": "",
-        "operationId": "getBannerDetail_1",
+        "operationId": "getBannerDetail_2",
         "tags": [
           "admin-banner-controller"
         ],
@@ -2226,10 +2238,10 @@
         "security": []
       },
       "put": {
-        "summary": "updateBanner",
+        "summary": "updateBanner_1",
         "deprecated": false,
         "description": "",
-        "operationId": "updateBanner",
+        "operationId": "updateBanner_1",
         "tags": [
           "admin-banner-controller"
         ],
@@ -2281,10 +2293,10 @@
         "security": []
       },
       "delete": {
-        "summary": "deleteBanner",
+        "summary": "deleteBanner_1",
         "deprecated": false,
         "description": "",
-        "operationId": "deleteBanner",
+        "operationId": "deleteBanner_1",
         "tags": [
           "admin-banner-controller"
         ],
@@ -2328,10 +2340,10 @@
     },
     "/api/v1/admin/content/banners": {
       "get": {
-        "summary": "listBanners_1",
+        "summary": "listBanners_2",
         "deprecated": false,
         "description": "",
-        "operationId": "listBanners_1",
+        "operationId": "listBanners_2",
         "tags": [
           "admin-banner-controller"
         ],
@@ -2363,10 +2375,10 @@
         "security": []
       },
       "post": {
-        "summary": "createBanner",
+        "summary": "createBanner_1",
         "deprecated": false,
         "description": "",
-        "operationId": "createBanner",
+        "operationId": "createBanner_1",
         "tags": [
           "admin-banner-controller"
         ],
@@ -5808,7 +5820,7 @@
         "summary": "Get admin dashboard overview metrics",
         "deprecated": false,
         "description": "",
-        "operationId": "getOverview",
+        "operationId": "getOverview_1",
         "tags": [
           "Admin Dashboard"
         ],
@@ -6215,7 +6227,7 @@
         "summary": "更新标签字典",
         "deprecated": false,
         "description": "",
-        "operationId": "update",
+        "operationId": "update_2",
         "tags": [
           "Admin Tag Dictionary"
         ],
@@ -6270,7 +6282,7 @@
         "summary": "删除标签字典",
         "deprecated": false,
         "description": "",
-        "operationId": "delete",
+        "operationId": "delete_2",
         "tags": [
           "Admin Tag Dictionary"
         ],
@@ -6317,7 +6329,7 @@
         "summary": "查询标签字典列表",
         "deprecated": false,
         "description": "",
-        "operationId": "list_1",
+        "operationId": "list_3",
         "tags": [
           "Admin Tag Dictionary"
         ],
@@ -6370,7 +6382,7 @@
         "summary": "新增标签字典",
         "deprecated": false,
         "description": "",
-        "operationId": "create",
+        "operationId": "create_2",
         "tags": [
           "Admin Tag Dictionary"
         ],
@@ -6417,7 +6429,7 @@
         "summary": "更新衰减参数",
         "deprecated": false,
         "description": "",
-        "operationId": "update_2",
+        "operationId": "update_4",
         "tags": [
           "Admin Decay Config"
         ],
@@ -6474,7 +6486,7 @@
         "summary": "查询衰减参数列表",
         "deprecated": false,
         "description": "",
-        "operationId": "list_2",
+        "operationId": "list_4",
         "tags": [
           "Admin Decay Config"
         ],
@@ -6568,7 +6580,7 @@
         "summary": "查询待审批标签列表",
         "deprecated": false,
         "description": "",
-        "operationId": "list",
+        "operationId": "list_2",
         "tags": [
           "Admin Tag Pending"
         ],
@@ -7002,7 +7014,7 @@
         "summary": "更新评分权重",
         "deprecated": false,
         "description": "",
-        "operationId": "update_1",
+        "operationId": "update_3",
         "tags": [
           "Admin Scoring Weight"
         ],
@@ -9177,6 +9189,153 @@
         "security": []
       }
     },
+    "/api/v1/staff/content/banners/{id}": {
+      "get": {
+        "summary": "获取Banner详情",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getBannerDetail",
+        "tags": [
+          "Staff Content"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminBannerResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "更新Banner",
+        "deprecated": false,
+        "description": "",
+        "operationId": "updateBanner",
+        "tags": [
+          "Staff Content"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBannerUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminBannerResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除Banner",
+        "deprecated": false,
+        "description": "",
+        "operationId": "deleteBanner",
+        "tags": [
+          "Staff Content"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
     "/api/v1/staff/content/articles": {
       "get": {
         "summary": "获取文章列表",
@@ -9346,6 +9505,88 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseAdminArticleResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/content/banners": {
+      "get": {
+        "summary": "获取Banner列表",
+        "deprecated": false,
+        "description": "",
+        "operationId": "listBanners",
+        "tags": [
+          "Staff Content"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListAdminBannerResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "创建Banner",
+        "deprecated": false,
+        "description": "",
+        "operationId": "createBanner",
+        "tags": [
+          "Staff Content"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBannerCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminBannerResponse"
                 }
               }
             },
@@ -11683,6 +11924,870 @@
         },
         "security": []
       }
+    },
+    "/api/v1/staff/postpartum-services/{serviceId}": {
+      "get": {
+        "summary": "获取产后服务详情",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getById",
+        "tags": [
+          "Staff Postpartum Services"
+        ],
+        "parameters": [
+          {
+            "name": "serviceId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStaffPostpartumServiceResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "更新产后服务",
+        "deprecated": false,
+        "description": "",
+        "operationId": "update",
+        "tags": [
+          "Staff Postpartum Services"
+        ],
+        "parameters": [
+          {
+            "name": "serviceId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffPostpartumServiceUpsertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStaffPostpartumServiceResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除产后服务",
+        "deprecated": false,
+        "description": "",
+        "operationId": "delete",
+        "tags": [
+          "Staff Postpartum Services"
+        ],
+        "parameters": [
+          {
+            "name": "serviceId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/postpartum-services": {
+      "get": {
+        "summary": "分页查询产后服务",
+        "deprecated": false,
+        "description": "",
+        "operationId": "list",
+        "tags": [
+          "Staff Postpartum Services"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "uid",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseStaffPostpartumServiceResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "创建产后服务",
+        "deprecated": false,
+        "description": "",
+        "operationId": "create",
+        "tags": [
+          "Staff Postpartum Services"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffPostpartumServiceUpsertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStaffPostpartumServiceResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/feedback/complaints/{id}/status": {
+      "put": {
+        "summary": "更新投诉状态",
+        "deprecated": false,
+        "description": "",
+        "operationId": "updateComplaintStatus",
+        "tags": [
+          "Staff Feedback"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComplaintStatusUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminComplaintResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/feedback/evaluations": {
+      "get": {
+        "summary": "获取评价列表",
+        "deprecated": false,
+        "description": "",
+        "operationId": "listEvaluations",
+        "tags": [
+          "Staff Feedback"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "score",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFeedbackPageResponseAdminEvaluationResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/feedback/evaluations/{id}": {
+      "get": {
+        "summary": "获取评价详情",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getEvaluationDetail",
+        "tags": [
+          "Staff Feedback"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminEvaluationResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/feedback/complaints": {
+      "get": {
+        "summary": "获取投诉列表",
+        "deprecated": false,
+        "description": "",
+        "operationId": "listComplaints",
+        "tags": [
+          "Staff Feedback"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFeedbackPageResponseAdminComplaintResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/feedback/complaints/{id}": {
+      "get": {
+        "summary": "获取投诉详情",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getComplaintDetail",
+        "tags": [
+          "Staff Feedback"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminComplaintResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/content/preset-questions/{questionId}": {
+      "get": {
+        "summary": "获取预设问题详情",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getById_1",
+        "tags": [
+          "Staff Preset Questions"
+        ],
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStaffPresetQuestionResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "更新预设问题",
+        "deprecated": false,
+        "description": "",
+        "operationId": "update_1",
+        "tags": [
+          "Staff Preset Questions"
+        ],
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffPresetQuestionUpsertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStaffPresetQuestionResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除预设问题",
+        "deprecated": false,
+        "description": "",
+        "operationId": "delete_1",
+        "tags": [
+          "Staff Preset Questions"
+        ],
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/content/preset-questions": {
+      "get": {
+        "summary": "分页查询预设问题",
+        "deprecated": false,
+        "description": "",
+        "operationId": "list_1",
+        "tags": [
+          "Staff Preset Questions"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseStaffPresetQuestionResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "创建预设问题",
+        "deprecated": false,
+        "description": "",
+        "operationId": "create_1",
+        "tags": [
+          "Staff Preset Questions"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffPresetQuestionUpsertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStaffPresetQuestionResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/staff/dashboard/overview": {
+      "get": {
+        "summary": "Get staff dashboard overview metrics",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getOverview",
+        "tags": [
+          "Staff Dashboard"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer {{staff}}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {{staff}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDashboardOverviewResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
     }
   },
   "components": {
@@ -12253,6 +13358,41 @@
           }
         }
       },
+      "StaffPostpartumServiceUpsertRequest": {
+        "required": [
+          "appointmentTime",
+          "durationMinutes",
+          "serviceName",
+          "status",
+          "uid"
+        ],
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "appointmentTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expertName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
       "ComplaintSubmitResponse": {
         "type": "object",
         "properties": {
@@ -12322,6 +13462,28 @@
           }
         }
       },
+      "ApiResponseStaffPostpartumServiceResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/StaffPostpartumServiceResponse"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "WechatLoginRequest": {
         "required": [
           "code"
@@ -12361,6 +13523,37 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "StaffPostpartumServiceResponse": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string"
+          },
+          "uid": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "appointmentTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expertName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
           }
         }
       },
@@ -13682,6 +14875,29 @@
           }
         }
       },
+      "StaffPresetQuestionUpsertRequest": {
+        "required": [
+          "category",
+          "question",
+          "sortNo"
+        ],
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "sortNo": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "ApiResponseFortuneCardResponse": {
         "type": "object",
         "properties": {
@@ -13745,6 +14961,28 @@
           }
         }
       },
+      "ApiResponseStaffPresetQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/StaffPresetQuestionResponse"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "FortuneCardResponse": {
         "type": "object",
         "properties": {
@@ -13782,6 +15020,27 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "StaffPresetQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "sortNo": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -14360,6 +15619,12 @@
           },
           "liked": {
             "type": "boolean"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -15919,6 +17184,43 @@
           "path": {
             "type": "string"
           },
+          "rawPath": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "pathName": {
+            "type": "string"
+          },
+          "durationSeconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDurationSeconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            },
+            "properties": {}
+          },
+          "context": {
+            "type": "string"
+          },
+          "repeatCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "timestamp": {
             "type": "string",
             "format": "date-time"
@@ -15946,6 +17248,54 @@
           "lastActive": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ApiResponsePageResponseStaffPostpartumServiceResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseStaffPostpartumServiceResponse"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageResponseStaffPostpartumServiceResponse": {
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffPostpartumServiceResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hasMore": {
+            "type": "boolean"
           }
         }
       },
@@ -16306,6 +17656,12 @@
             "format": "date-time"
           },
           "profileSummary": {
+            "type": "string"
+          },
+          "aiSummary": {
+            "type": "string"
+          },
+          "aiScript": {
             "type": "string"
           },
           "manualScoreSnapshot": {
@@ -16929,6 +18285,54 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AdminTagMentionResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponsePageResponseStaffPresetQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseStaffPresetQuestionResponse"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageResponseStaffPresetQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffPresetQuestionResponse"
             }
           },
           "page": {

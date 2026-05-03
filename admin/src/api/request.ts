@@ -4,6 +4,27 @@ import { useUserStore } from '@/stores/user'
 import router from '@/router'
 import type { ApiResponse } from '@/types'
 
+// 标记是否正在处理登录过期，防止并发请求导致多个提示框
+let isRelogging = false
+
+// 记录当前正在显示的错误消息内容，用于去重
+const errorMessages = new Set<string>()
+
+/**
+ * 显示错误消息（去重版）
+ */
+function showError(message: string, onClose?: () => void) {
+  if (errorMessages.has(message)) return
+  errorMessages.add(message)
+  ElMessage.error({
+    message,
+    onClose: () => {
+      errorMessages.delete(message)
+      onClose?.()
+    }
+  })
+}
+
 const instance: AxiosInstance = axios.create({
   baseURL: '/api/v1',
   timeout: 30000,
@@ -44,24 +65,34 @@ instance.interceptors.response.use(
     // 业务错误
     if (data.code === 4003) {
       // 未登录或 token 过期
-      const userStore = useUserStore()
-      userStore.logout()
-      router.push({ name: 'Login' })
-      ElMessage.error('登录已过期，请重新登录')
+      if (!isRelogging) {
+        isRelogging = true
+        const userStore = useUserStore()
+        userStore.logout()
+        router.push({ name: 'Login' })
+        showError('登录已过期，请重新登录', () => {
+          isRelogging = false
+        })
+      }
     } else {
-      ElMessage.error(data.message || '请求失败')
+      showError(data.message || '请求失败')
     }
     
     return Promise.reject(new Error(data.message || '请求失败'))
   },
   (error) => {
     if (error.response?.status === 401) {
-      const userStore = useUserStore()
-      userStore.logout()
-      router.push({ name: 'Login' })
-      ElMessage.error('登录已过期，请重新登录')
+      if (!isRelogging) {
+        isRelogging = true
+        const userStore = useUserStore()
+        userStore.logout()
+        router.push({ name: 'Login' })
+        showError('登录已过期，请重新登录', () => {
+          isRelogging = false
+        })
+      }
     } else {
-      ElMessage.error(error.message || '网络错误')
+      showError(error.message || '网络错误')
     }
     return Promise.reject(error)
   }

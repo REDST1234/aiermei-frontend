@@ -1,71 +1,85 @@
 <template>
   <view class="page center-page">
-    <view class="hero">
-      <image class="hero-image" :src="centerHome?.heroImage || 'https://picsum.photos/seed/storefront/1080/1920'" mode="aspectFill" />
-      <view class="hero-mask" />
-      <view class="hero-inner fade-up">
-        <view class="hero-brand">{{ centerHome?.brandTitle || 'AI ER MEI' }}</view>
-        <view class="hero-sub">{{ centerHome?.brandSubtitle || 'RESIDENCES' }}</view>
+    <scroll-view
+      scroll-y
+      class="full-scroll"
+      refresher-enabled
+      :refresher-triggered="isRefresherTriggered"
+      @refresherrefresh="onRefresherRefresh"
+      @refresherpulling="onRefresherPulling"
+      @refresherrestore="onRefresherRestore"
+    >
+      <view slot="refresher">
+        <CustomRefresher :status="refresherStatus" />
       </view>
-      <view class="scroll-hint bounce">
-        <image class="hint-icon" src="/static/icons/arrow-down.svg" mode="aspectFit" />
-      </view>
-    </view>
 
-    <view class="floating-sections">
-      <scroll-view scroll-x class="section-scroll" enhanced show-scrollbar="false">
-        <view class="section-row">
-          <view
-            class="section-card-item reveal"
-            v-for="item in sections"
-            :key="item.id"
-            @click="openSection(item.id)"
-          >
-            <image :src="item.coverImage" mode="aspectFill" class="section-image" />
-            <view class="section-overlay" />
-            <view class="section-meta">
-              <view class="section-title-text">{{ item.title }}</view>
-              <view class="section-desc">{{ item.desc }}</view>
+      <view class="hero">
+        <image class="hero-image" :src="centerHome?.heroImage || 'https://picsum.photos/seed/storefront/1080/1920'" mode="aspectFill" />
+        <view class="hero-mask" />
+        <view class="hero-inner fade-up">
+          <view class="hero-brand">{{ centerHome?.brandTitle || 'AI ER MEI' }}</view>
+          <view class="hero-sub">{{ centerHome?.brandSubtitle || 'RESIDENCES' }}</view>
+        </view>
+        <view class="scroll-hint bounce">
+          <image class="hint-icon" src="/static/icons/arrow-down.svg" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view class="floating-sections">
+        <scroll-view scroll-x class="section-scroll" enhanced show-scrollbar="false">
+          <view class="section-row">
+            <view
+              class="section-card-item reveal"
+              v-for="item in sections"
+              :key="item.id"
+              @click="openSection(item.id)"
+            >
+              <image :src="item.coverImage" mode="aspectFill" class="section-image" />
+              <view class="section-overlay" />
+              <view class="section-meta">
+                <view class="section-title-text">{{ item.title }}</view>
+                <view class="section-desc">{{ item.desc }}</view>
+              </view>
             </view>
           </view>
+        </scroll-view>
+        <view class="dot-row">
+          <text class="dot" v-for="(_, index) in sections" :key="index">.</text>
         </view>
-      </scroll-view>
-      <view class="dot-row">
-        <text class="dot" v-for="(_, index) in sections" :key="index">.</text>
-      </view>
-    </view>
-
-    <view class="content-wrap">
-      <view class="split-title">
-        <view class="line" />
-        <text>核心能力</text>
-        <view class="line" />
       </view>
 
-      <view class="facility-block reveal" v-for="item in facilities" :key="item.id">
-        <image :src="item.image" mode="aspectFill" class="facility-image" />
-        <view class="facility-title">{{ item.title }}</view>
-        <view class="facility-desc">{{ item.desc }}</view>
-      </view>
+      <view class="content-wrap">
+        <view class="split-title">
+          <view class="line" />
+          <text>核心能力</text>
+          <view class="line" />
+        </view>
 
-      <view class="split-title suite-head">
-        <view class="line" />
-        <text>套房套餐</text>
-        <view class="line" />
-      </view>
+        <view class="facility-block reveal" v-for="item in facilities" :key="item.id">
+          <image :src="item.image" mode="aspectFill" class="facility-image" />
+          <view class="facility-title">{{ item.title }}</view>
+          <view class="facility-desc">{{ item.desc }}</view>
+        </view>
 
-      <view class="suite-list">
-        <view class="suite-row reveal" v-for="item in suites" :key="item.id" @click="openSuite(item.id)">
-          <image :src="item.coverImage || item.images?.[0]" class="suite-thumb" mode="aspectFill" />
-          <view class="suite-info">
-            <view class="suite-name">{{ item.name }}</view>
-            <view class="suite-price">{{ item.priceLabel }}</view>
-            <view class="suite-feat">{{ item.features.slice(0, 2).join(' / ') }}</view>
+        <view class="split-title suite-head">
+          <view class="line" />
+          <text>套房套餐</text>
+          <view class="line" />
+        </view>
+
+        <view class="suite-list">
+          <view class="suite-row reveal" v-for="item in suites" :key="item.id" @click="openSuite(item.id)">
+            <image :src="item.coverImage || item.images?.[0]" class="suite-thumb" mode="aspectFill" />
+            <view class="suite-info">
+              <view class="suite-name">{{ item.name }}</view>
+              <view class="suite-price">{{ item.priceLabel }}</view>
+              <view class="suite-feat">{{ item.features.slice(0, 2).join(' / ') }}</view>
+            </view>
+            <image class="arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
           </view>
-          <image class="arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
         </view>
       </view>
-    </view>
+    </scroll-view>
 
     <BottomNav current="/pages/center/index" />
   </view>
@@ -74,6 +88,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
+import CustomRefresher from '@/components/CustomRefresher.vue';
 import BottomNav from '@/components/BottomNav.vue';
 import { getCenterHome, getCenterSections, getSuites } from '@/api/modules/center';
 import { trackPath } from '@/store/session';
@@ -83,6 +98,10 @@ const centerHome = ref<CenterHome | null>(null);
 const sections = ref<CenterSection[]>([]);
 const facilities = ref<{ id: string; title: string; desc: string; image: string }[]>([]);
 const suites = ref<Suite[]>([]);
+
+// 自定义刷新状态
+const isRefresherTriggered = ref(false);
+const refresherStatus = ref<'pulling' | 'refreshing' | 'success' | 'none'>('none');
 
 function openSection(id: string) {
   trackPath(`中心模块:${id}`);
@@ -94,9 +113,7 @@ function openSuite(id: string) {
   uni.navigateTo({ url: `/pages/suite-details/index?id=${id}` });
 }
 
-onLoad(async () => {
-  trackPath('中心首页');
-  
+async function loadData() {
   try {
     const [homeRes, sectionsRes, suitesRes] = await Promise.all([
       getCenterHome(),
@@ -111,12 +128,52 @@ onLoad(async () => {
   } catch (e) {
     console.error('Failed to load center data:', e);
   }
+}
+
+onLoad(() => {
+  trackPath('中心首页');
+  loadData();
 });
+
+async function onRefresherRefresh() {
+  if (isRefresherTriggered.value) return;
+  
+  isRefresherTriggered.value = true;
+  refresherStatus.value = 'refreshing';
+  
+  try {
+    await loadData();
+    
+    // 显示成功状态并停留一会
+    refresherStatus.value = 'success';
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  } finally {
+    isRefresherTriggered.value = false;
+    refresherStatus.value = 'none';
+  }
+}
+
+function onRefresherPulling() {
+  if (refresherStatus.value === 'none') {
+    refresherStatus.value = 'pulling';
+  }
+}
+
+function onRefresherRestore() {
+  refresherStatus.value = 'none';
+}
 </script>
 
 <style scoped>
 .center-page {
   background: #f5f5f0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.full-scroll {
+  width: 100%;
+  height: 100%;
 }
 
 .hero {

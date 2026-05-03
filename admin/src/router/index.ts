@@ -55,6 +55,12 @@ const employeeChildren: RouteRecordRaw[] = [
         name: 'Facilities',
         component: () => import('@/views/content/facilities.vue'),
         meta: { title: '设施管理', roles: ['editor', 'viewer', 'staff'] }
+      },
+      {
+        path: 'preset-questions',
+        name: 'PresetQuestions',
+        component: () => import('@/views/content/preset-questions.vue'),
+        meta: { title: '预设问题', roles: ['editor', 'viewer', 'staff'] }
       }
     ]
   },
@@ -81,6 +87,12 @@ const employeeChildren: RouteRecordRaw[] = [
         name: 'CenterAdmin',
         component: () => import('@/views/service/center.vue'),
         meta: { title: '中心配置', roles: ['editor', 'viewer', 'staff'] }
+      },
+      {
+        path: 'postpartum-services',
+        name: 'PostpartumServices',
+        component: () => import('@/views/service/postpartum-services.vue'),
+        meta: { title: '产后服务', roles: ['editor', 'viewer', 'staff'] }
       }
     ]
   },

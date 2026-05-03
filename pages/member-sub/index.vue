@@ -7,136 +7,151 @@
       <view class="head-title">{{ title }}</view>
     </view>
 
-    <view class="body" v-if="type === 'evaluation'">
-      <view class="card center">
-        <view class="tip">请给本次服务打分</view>
-        <view class="stars">
-          <text class="star" :class="{ on: index <= rating }" v-for="index in 5" :key="index" @click="rating = index">*</text>
-        </view>
+    <scroll-view
+      scroll-y
+      class="full-scroll"
+      refresher-enabled
+      :refresher-triggered="isRefresherTriggered"
+      @refresherrefresh="onRefresherRefresh"
+      @refresherpulling="onRefresherPulling"
+      @refresherrestore="onRefresherRestore"
+    >
+      <view slot="refresher">
+        <CustomRefresher :status="refresherStatus" />
       </view>
-      <view class="card">
-        <view class="tip">评价内容</view>
-        <textarea class="textarea" v-model="content" placeholder="请输入评价内容..." />
-      </view>
-      <button class="submit" :class="{ disabled: rating === 0 }" @click="submitEvaluationAction">提交评价</button>
-      <view class="done" v-if="submitted">提交成功，感谢你的反馈</view>
-    </view>
 
-    <view class="body" v-else-if="type === 'hotline'">
-      <view class="card hotline" v-for="item in hotlines" :key="item.number">
-        <view>
-          <view class="tip">{{ item.label }}</view>
-          <view class="hotline-number">{{ item.number }}</view>
-        </view>
-        <view class="call" @click="call(item.number)">
-          <image class="call-icon" src="/static/icons/phone.svg" mode="aspectFit" />
-        </view>
-      </view>
-      <view class="card center" v-if="serviceQrCodeUrl">
-        <view class="tip">{{ serviceQrTips || '扫码联系顾问' }}</view>
-        <image class="qr" :src="serviceQrCodeUrl" mode="aspectFill" />
-      </view>
-    </view>
-
-    <view class="body faq-body" v-else-if="type === 'faq'">
-      <!-- 入口卡片 -->
-      <view v-if="!faqCategory">
-        <view class="faq-entry" v-for="cat in faqCategories" :key="cat.id" @click="selectFaqCategory(cat.id, cat.name)">
-          <view class="faq-entry-text">{{ cat.name }}</view>
-          <image class="faq-entry-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
-        </view>
-      </view>
-      <!-- 问题列表 -->
-      <view v-else>
-        <view class="faq-back" @click="faqCategory = ''">
-          <image class="faq-back-icon" src="/static/icons/arrow-left.svg" mode="aspectFit" />
-          <text>{{ faqCategoryName }}</text>
-        </view>
-        <view class="faq-item" v-for="(item, idx) in faqItems" :key="item.id" @click="toggleFaq(idx)">
-          <view class="faq-header">
-            <view class="faq-q">{{ item.title }}</view>
-            <image class="faq-arrow" :class="{ expanded: expandedFaq === idx }" src="/static/icons/arrow-down.svg" mode="aspectFit" />
+      <view class="body" v-if="type === 'evaluation'">
+        <view class="card center">
+          <view class="tip">请给本次服务打分</view>
+          <view class="stars">
+            <text class="star" :class="{ on: index <= rating }" v-for="index in 5" :key="index" @click="rating = index">*</text>
           </view>
-          <view class="faq-a" v-if="expandedFaq === idx">{{ item.content }}</view>
         </view>
+        <view class="card">
+          <view class="tip">评价内容</view>
+          <textarea class="textarea" v-model="content" placeholder="请输入评价内容..." />
+        </view>
+        <button class="submit" :class="{ disabled: rating === 0 }" @click="submitEvaluationAction">提交评价</button>
+        <view class="done" v-if="submitted">提交成功，感谢你的反馈</view>
       </view>
-    </view>
 
-    <view class="body" v-else-if="type === 'package'">
-      <view class="card package" v-for="item in suites" :key="item.id" @click="openSuite(item.id)">
-        <image :src="item.coverImage || item.images?.[0]" class="pkg-cover" mode="aspectFill" />
-        <view class="pkg-title">{{ item.name }}</view>
-        <view class="pkg-desc">{{ item.size }} / {{ item.features.join(' | ') }}</view>
-        <view class="pkg-price">{{ item.priceLabel }}</view>
+      <view class="body" v-else-if="type === 'hotline'">
+        <view class="card hotline" v-for="item in hotlines" :key="item.number">
+          <view>
+            <view class="tip">{{ item.label }}</view>
+            <view class="hotline-number">{{ item.number }}</view>
+          </view>
+          <view class="call" @click="call(item.number)">
+            <image class="call-icon" src="/static/icons/phone.svg" mode="aspectFit" />
+          </view>
+        </view>
+        <view class="card center" v-if="serviceQrCodeUrl">
+          <view class="tip">{{ serviceQrTips || '扫码联系顾问' }}</view>
+          <image class="qr" :src="serviceQrCodeUrl" mode="aspectFill" />
+        </view>
       </view>
-    </view>
 
-    <view class="body" v-else-if="type === 'coupon'">
-      <view class="card coupon" v-for="item in coupons" :key="item.id">
-        <view class="left-bar" :class="{ off: item.status !== 'unused' }" />
-        <view>
-          <view class="q">{{ item.name }}</view>
-          <view class="a">到期 {{ item.expiry }}</view>
+      <view class="body faq-body" v-else-if="type === 'faq'">
+        <!-- 入口卡片 -->
+        <view v-if="!faqCategory">
+          <view class="faq-entry" v-for="cat in faqCategories" :key="cat.id" @click="selectFaqCategory(cat.id, cat.name)">
+            <view class="faq-entry-text">{{ cat.name }}</view>
+            <image class="faq-entry-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
+          </view>
         </view>
-        <view class="coupon-right">
-          <view class="coupon-money">{{ item.valueLabel }}</view>
-          <view class="coupon-state" :class="{ off: item.status !== 'unused' }">{{ item.status === 'unused' ? '可用' : '已过期' }}</view>
+        <!-- 问题列表 -->
+        <view v-else>
+          <view class="faq-back" @click="faqCategory = ''">
+            <image class="faq-back-icon" src="/static/icons/arrow-left.svg" mode="aspectFit" />
+            <text>{{ faqCategoryName }}</text>
+          </view>
+          <view class="faq-item" v-for="(item, idx) in faqItems" :key="item.id" @click="toggleFaq(idx)">
+            <view class="faq-header">
+              <view class="faq-q">{{ item.title }}</view>
+              <image class="faq-arrow" :class="{ expanded: expandedFaq === idx }" src="/static/icons/arrow-down.svg" mode="aspectFit" />
+            </view>
+            <view class="faq-a" v-if="expandedFaq === idx">{{ item.content }}</view>
+          </view>
         </view>
       </view>
-    </view>
 
-    <view class="body" v-else-if="type === 'postpartum'">
-      <view class="card service" v-for="item in services" :key="item.id">
-        <view class="row-between">
-          <view class="q">{{ item.name }}</view>
-          <view class="status" :class="{ doneStatus: item.status === 'completed' }">{{ item.status === 'pending' ? '待服务' : '已完成' }}</view>
+      <view class="body" v-else-if="type === 'package'">
+        <view class="card package" v-for="item in suites" :key="item.id" @click="openSuite(item.id)">
+          <image :src="item.coverImage || item.images?.[0]" class="pkg-cover" mode="aspectFill" />
+          <view class="pkg-title">{{ item.name }}</view>
+          <view class="pkg-desc">{{ item.size }} / {{ item.features.join(' | ') }}</view>
+          <view class="pkg-price">{{ item.priceLabel }}</view>
         </view>
-        <view class="a">{{ item.expert }} / {{ item.time }}</view>
       </view>
-    </view>
 
-    <view class="body complaint-body" v-else-if="type === 'complaint'">
-      <view class="card">
-        <view class="tip">联系人信息（选填）</view>
-        <view class="contact-row">
-          <input
-            class="contact-input"
-            v-model="contactName"
-            placeholder="姓名"
-            maxlength="20"
-          />
-          <input
-            class="contact-input"
-            v-model="contactPhone"
-            type="number"
-            placeholder="手机号"
-            maxlength="11"
-          />
+      <view class="body" v-else-if="type === 'coupon'">
+        <view class="card coupon" v-for="item in coupons" :key="item.id">
+          <view class="left-bar" :class="{ off: item.status !== 'unused' }" />
+          <view>
+            <view class="q">{{ item.name }}</view>
+            <view class="a">到期 {{ item.expiry }}</view>
+          </view>
+          <view class="coupon-right">
+            <view class="coupon-money">{{ item.valueLabel }}</view>
+            <view class="coupon-state" :class="{ off: item.status !== 'unused' }">{{ item.status === 'unused' ? '可用' : '已过期' }}</view>
+          </view>
         </view>
       </view>
-      <view class="card">
-        <view class="tip">问题类型</view>
-        <view class="type-grid">
-          <view class="type-item" :class="{ active: complaintType === t.value }" v-for="t in complaintTypes" :key="t.value" @click="complaintType = t.value">{{ t.label }}</view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="tip">问题描述</view>
-        <textarea class="textarea" v-model="content" placeholder="请输入你的建议或投诉..." />
-      </view>
-      <button class="submit" :class="{ disabled: !content.trim() }" @click="submitComplaintAction">提交建议</button>
-      <view class="done" v-if="submitted">提交成功，我们会尽快联系你</view>
-    </view>
 
-    <view class="body" v-else>
-      <view class="card center">页面开发中...</view>
-    </view>
+      <view class="body" v-else-if="type === 'postpartum'">
+        <view class="card service" v-for="item in services" :key="item.id">
+          <view class="row-between">
+            <view class="q">{{ item.name }}</view>
+            <view class="status" :class="{ doneStatus: item.status === 'completed' }">{{ item.status === 'pending' ? '待服务' : '已完成' }}</view>
+          </view>
+          <view class="a">{{ item.expert }} / {{ item.time }}</view>
+        </view>
+      </view>
+
+      <view class="body complaint-body" v-else-if="type === 'complaint'">
+        <view class="card">
+          <view class="tip">联系人信息（选填）</view>
+          <view class="contact-row">
+            <input
+              class="contact-input"
+              v-model="contactName"
+              placeholder="姓名"
+              maxlength="20"
+            />
+            <input
+              class="contact-input"
+              v-model="contactPhone"
+              type="number"
+              placeholder="手机号"
+              maxlength="11"
+            />
+          </view>
+        </view>
+        <view class="card">
+          <view class="tip">问题类型</view>
+          <view class="type-grid">
+            <view class="type-item" :class="{ active: complaintType === t.value }" v-for="t in complaintTypes" :key="t.value" @click="complaintType = t.value">{{ t.label }}</view>
+          </view>
+        </view>
+        <view class="card">
+          <view class="tip">问题描述</view>
+          <textarea class="textarea" v-model="content" placeholder="请输入你的建议或投诉..." />
+        </view>
+        <button class="submit" :class="{ disabled: !content.trim() }" @click="submitComplaintAction">提交建议</button>
+        <view class="done" v-if="submitted">提交成功，我们会尽快联系你</view>
+      </view>
+
+      <view class="body" v-else>
+        <view class="card center">页面开发中...</view>
+      </view>
+    </scroll-view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
+import CustomRefresher from '@/components/CustomRefresher.vue';
 import { getFaqCategories, getFaqItems, getMemberCoupons, getServiceHotlines, getPostpartumServices, submitComplaint, submitEvaluation } from '@/api/modules/member';
 import { getSuites } from '@/api/modules/center';
 import { trackPath } from '@/store/session';
@@ -167,6 +182,10 @@ const hotlines = ref<HotlineInfo[]>([]);
 const serviceQrCodeUrl = ref<string>('');
 const serviceQrTips = ref<string>('');
 const expandedFaq = ref<number | null>(null);
+
+// 自定义刷新状态
+const isRefresherTriggered = ref(false);
+const refresherStatus = ref<'pulling' | 'refreshing' | 'success' | 'none'>('none');
 
 const titleMap: Record<string, string> = {
   evaluation: '服务评价',
@@ -287,12 +306,48 @@ onLoad(async (query) => {
   trackPath(`会员子页:${type.value}`);
   await loadByType();
 });
+
+async function onRefresherRefresh() {
+  if (isRefresherTriggered.value) return;
+  
+  isRefresherTriggered.value = true;
+  refresherStatus.value = 'refreshing';
+  
+  try {
+    await loadByType();
+    
+    // 显示成功状态并停留一会
+    refresherStatus.value = 'success';
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  } finally {
+    isRefresherTriggered.value = false;
+    refresherStatus.value = 'none';
+  }
+}
+
+function onRefresherPulling() {
+  if (refresherStatus.value === 'none') {
+    refresherStatus.value = 'pulling';
+  }
+}
+
+function onRefresherRestore() {
+  refresherStatus.value = 'none';
+}
 </script>
 
 <style scoped>
 .sub-page {
   background: #f5f5f0;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.full-scroll {
+  flex: 1;
+  height: 0;
 }
 
 .head {
@@ -300,6 +355,7 @@ onLoad(async (query) => {
   align-items: center;
   padding: var(--top-safe-offset) 24rpx 16rpx;
   gap: 8rpx;
+  background: #f5f5f0;
 }
 
 .back {

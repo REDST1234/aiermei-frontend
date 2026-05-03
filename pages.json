@@ -3,7 +3,8 @@
     {
       "path": "pages/home/index",
       "style": {
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
       }
     },
     {
@@ -15,7 +16,8 @@
     {
       "path": "pages/center/index",
       "style": {
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
       }
     },
     {
@@ -27,7 +29,8 @@
     {
       "path": "pages/content/index",
       "style": {
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
       }
     },
     {
@@ -39,7 +42,8 @@
     {
       "path": "pages/member/index",
       "style": {
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
       }
     },
     {
@@ -57,7 +61,8 @@
     {
       "path": "pages/member-sub/index",
       "style": {
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
       }
     },
     {

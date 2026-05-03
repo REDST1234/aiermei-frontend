@@ -159,7 +159,19 @@ const state = {
     { id: '205888002', title: '婴儿游泳区', desc: '用于宝宝抚触、游泳与早教互动', image: 'https://picsum.photos/seed/fac_2/600/360', sort: 2 }
   ] as AnyObj[],
   customerTagCorrections: [] as AnyObj[],
-  customerManualScores: {} as Record<string, AnyObj>
+  customerManualScores: {} as Record<string, AnyObj>,
+  presetQuestions: [
+    { id: 'pq_1', question: '产后多久可以开始运动？', answer: '建议先评估恢复情况，再循序渐进。', category: 'postpartum', sortNo: 10 },
+    { id: 'pq_2', question: '宝宝黄疸怎么办？', answer: '轻微黄疸多喂奶促进排泄，严重请咨询医生。', category: 'parenting', sortNo: 20 }
+  ] as AnyObj[],
+  postpartumServices: [
+    { id: 'ps_1', uid: 'user_001', serviceName: '盆底修复评估', expertName: '王护理师', appointmentTime: '2026-05-10T10:00:00+08:00', durationMinutes: 45, status: 'scheduled' }
+  ] as AnyObj[],
+  tagDictionary: [
+    { tagCode: 'postpartum_recovery', tagName: '产后恢复', description: '产后体能与机能恢复相关标签', status: 'ACTIVE', sortNo: 1, useCount: 125 },
+    { tagCode: 'breastfeeding', tagName: '母乳喂养', description: '开奶、催乳及喂养指导相关标签', status: 'ACTIVE', sortNo: 2, useCount: 89 },
+    { tagCode: 'newborn_care', tagName: '新生儿护理', description: '婴儿黄疸、睡眠及日常照护相关标签', status: 'ACTIVE', sortNo: 3, useCount: 210 }
+  ] as AnyObj[]
 }
 
 function now() {
@@ -651,7 +663,7 @@ export function setupMock() {
       // 更新 Mock 状态中的客户数据，以便后续 getCustomerDetail 能拿到更新后的结果
       const customer = state.customers.find((u) => u.uid === uid)
       if (customer) {
-        customer.profileSummary = result.script
+        customer.profileSummary = result.summary
         // 模拟 AI 分析后分数发生变化
         customer.manualTotalScore = Math.floor(60 + Math.random() * 35)
         // 模拟标签更新
@@ -800,6 +812,54 @@ export function setupMock() {
         )
       }
       return createResponse(config, paginate(list, page, pageSize))
+    }
+
+    // Preset Questions Mock
+    if (normalizedPath === '/admin/content/preset-questions' && method === 'GET') {
+      return createResponse(config, state.presetQuestions)
+    }
+    if (normalizedPath === '/admin/content/preset-questions' && method === 'POST') {
+      const item = { id: nextId('pq'), ...body }
+      state.presetQuestions.push(item)
+      return createResponse(config, item)
+    }
+    if (normalizedPath.match(/^\/admin\/content\/preset-questions\/[^/]+$/) && method === 'GET') {
+      const id = findByPathId(path)
+      return createResponse(config, state.presetQuestions.find(x => x.id === id) || state.presetQuestions[0])
+    }
+    if (normalizedPath.match(/^\/admin\/content\/preset-questions\/[^/]+$/) && method === 'PUT') {
+      const id = findByPathId(path)
+      const item = upsertById(state.presetQuestions, id, body)
+      return createResponse(config, item || true)
+    }
+    if (normalizedPath.match(/^\/admin\/content\/preset-questions\/[^/]+$/) && method === 'DELETE') {
+      const id = findByPathId(path)
+      removeById(state.presetQuestions, id)
+      return createResponse(config, null)
+    }
+
+    // Postpartum Services Mock
+    if (normalizedPath === '/admin/postpartum-services' && method === 'GET') {
+      return createResponse(config, state.postpartumServices)
+    }
+    if (normalizedPath === '/admin/postpartum-services' && method === 'POST') {
+      const item = { id: nextId('ps'), ...body }
+      state.postpartumServices.push(item)
+      return createResponse(config, item)
+    }
+    if (normalizedPath.match(/^\/admin\/postpartum-services\/[^/]+$/) && method === 'GET') {
+      const id = findByPathId(path)
+      return createResponse(config, state.postpartumServices.find(x => x.id === id) || state.postpartumServices[0])
+    }
+    if (normalizedPath.match(/^\/admin\/postpartum-services\/[^/]+$/) && method === 'PUT') {
+      const id = findByPathId(path)
+      const item = upsertById(state.postpartumServices, id, body)
+      return createResponse(config, item || true)
+    }
+    if (normalizedPath.match(/^\/admin\/postpartum-services\/[^/]+$/) && method === 'DELETE') {
+      const id = findByPathId(path)
+      removeById(state.postpartumServices, id)
+      return createResponse(config, null)
     }
 
     if (normalizedPath.startsWith('/admin/orders/') && method === 'GET' && !normalizedPath.endsWith('/stats')) {
@@ -1187,6 +1247,45 @@ export function setupMock() {
     if (normalizedPath.match(/^\/admin\/centers\/sections\/[^/]+$/) && method === 'DELETE') {
       const id = findByPathId(path)
       removeById(state.centerSections, id)
+      return createResponse(config, null)
+    }
+
+    // Tag Dictionary Mock
+    if (normalizedPath === '/admin/tag-dictionary' && method === 'GET') {
+      const keyword = (query.keyword || '').toLowerCase().trim()
+      const status = query.status
+      let list = [...state.tagDictionary]
+      if (status) list = list.filter(x => x.status === status)
+      if (keyword) {
+        list = list.filter(x => 
+          x.tagName.toLowerCase().includes(keyword) || 
+          x.tagCode.toLowerCase().includes(keyword)
+        )
+      }
+      return createResponse(config, list)
+    }
+
+    if (normalizedPath === '/admin/tag-dictionary' && method === 'POST') {
+      const item = {
+        useCount: 0,
+        ...body
+      }
+      state.tagDictionary.push(item)
+      return createResponse(config, item)
+    }
+
+    if (normalizedPath.match(/^\/admin\/tag-dictionary\/[^/]+$/) && method === 'PUT') {
+      const tagCode = findByPathId(path)
+      const idx = state.tagDictionary.findIndex(x => x.tagCode === tagCode)
+      if (idx < 0) return createResponse(config, null, 4004, 'tag not found')
+      state.tagDictionary[idx] = { ...state.tagDictionary[idx], ...body }
+      return createResponse(config, state.tagDictionary[idx])
+    }
+
+    if (normalizedPath.match(/^\/admin\/tag-dictionary\/[^/]+$/) && method === 'DELETE') {
+      const tagCode = findByPathId(path)
+      const idx = state.tagDictionary.findIndex(x => x.tagCode === tagCode)
+      if (idx >= 0) state.tagDictionary.splice(idx, 1)
       return createResponse(config, null)
     }
 

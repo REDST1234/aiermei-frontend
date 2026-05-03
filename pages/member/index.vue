@@ -1,91 +1,105 @@
 <template>
   <view class="page member-page">
-    <view class="member-head">
-      <view class="brand-row">
-        <view class="brand">AI ER MEI</view>
-      </view>
-      <view class="profile-row">
-        <view class="avatar">
-          <image v-if="profile.avatar" :src="profile.avatar" mode="aspectFill" class="avatar-img" />
-          <text v-else>AVATAR</text>
-        </view>
-        <view class="profile-info">
-          <view class="badge" v-if="profile.memberLevel">{{ getMemberLevelLabel(profile.memberLevel) }}</view>
-          <view class="badge" v-else>访客</view>
-          <view class="name">{{ profile.name || '未登录' }}</view>
-        </view>
-        <view class="edit-profile-btn" @click="openEditProfile" v-if="profile.isLoggedIn || getToken()">
-          <text class="edit-icon">⚙</text>
-        </view>
-      </view>
-    </view>
-
-    <view class="body-wrap">
-      <view class="split-title">
-        <view class="line" />
-        <text>会员服务</text>
-        <view class="line" />
+    <scroll-view
+      scroll-y
+      class="full-scroll"
+      refresher-enabled
+      :refresher-triggered="isRefresherTriggered"
+      @refresherrefresh="onRefresherRefresh"
+      @refresherpulling="onRefresherPulling"
+      @refresherrestore="onRefresherRestore"
+    >
+      <view slot="refresher">
+        <CustomRefresher :status="refresherStatus" />
       </view>
 
-      <view class="service-grid">
-        <view class="service-card" v-for="item in topServices" :key="item.id" @click="openSub(item.id)">
-          <view class="service-icon">
-            <image class="service-icon-img" :src="item.iconPath" mode="aspectFit" />
+      <view class="member-head">
+        <view class="brand-row">
+          <view class="brand">AI ER MEI</view>
+        </view>
+        <view class="profile-row">
+          <view class="avatar">
+            <image v-if="profile.avatar" :src="profile.avatar" mode="aspectFill" class="avatar-img" />
+            <text v-else>AVATAR</text>
           </view>
-          <view class="service-label">{{ item.label }}</view>
+          <view class="profile-info">
+            <view class="badge" v-if="profile.memberLevel">{{ getMemberLevelLabel(profile.memberLevel) }}</view>
+            <view class="badge" v-else>访客</view>
+            <view class="name">{{ profile.name || '未登录' }}</view>
+          </view>
+          <view class="edit-profile-btn" @click="openEditProfile" v-if="profile.isLoggedIn || getToken()">
+            <text class="edit-icon">⚙</text>
+          </view>
         </view>
       </view>
 
-      <view class="feature-wrap">
-        <swiper
-          class="feature-swiper"
-          circular
-          autoplay
-          :interval="4000"
-          :duration="650"
-          @change="onFeatureChange"
-        >
-          <swiper-item v-for="item in articles" :key="item.id">
-            <view class="feature-card" @click="openMagazine(item.id)">
-              <view class="feature-left">
-                <image :src="item.cover" mode="aspectFill" class="feature-image" />
-                <view class="feature-cover">
-                  <view class="feature-tag">Featured</view>
-                  <view class="feature-title">{{ item.title }}</view>
-                </view>
-              </view>
-              <view class="feature-right">
-                <view class="feature-sub">{{ item.subtitle }}</view>
-                <view class="feature-link">
-                  {{ item.desc }}
-                  <image class="tiny-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
-                </view>
-              </view>
+      <view class="body-wrap">
+        <view class="split-title">
+          <view class="line" />
+          <text>会员服务</text>
+          <view class="line" />
+        </view>
+
+        <view class="service-grid">
+          <view class="service-card" v-for="item in topServices" :key="item.id" @click="openSub(item.id)">
+            <view class="service-icon">
+              <image class="service-icon-img" :src="item.iconPath" mode="aspectFit" />
             </view>
-          </swiper-item>
-        </swiper>
-        <view class="feature-dots">
-          <view class="f-dot" :class="{ active: index === articleIndex }" v-for="(_, index) in articles" :key="index" />
-        </view>
-      </view>
-
-      <view class="menu-list">
-        <view class="menu-row" v-for="item in bottomMenus" :key="item.id" @click="openSub(item.id)">
-          <view class="menu-left">
-            <image class="menu-icon" :src="item.iconPath" mode="aspectFit" />
-            <text class="menu-label">{{ item.label }}</text>
+            <view class="service-label">{{ item.label }}</view>
           </view>
-          <image class="menu-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
         </view>
-      </view>
 
-      <view class="logout-section" v-if="profile.isLoggedIn || getToken()">
-        <view class="logout-btn" @click="handleLogout">
-          <image class="logout-icon" src="/static/icons/close.svg" mode="aspectFit" />
-          <text class="logout-text">退出登录</text>
+        <view class="feature-wrap">
+          <swiper
+            class="feature-swiper"
+            circular
+            autoplay
+            :interval="4000"
+            :duration="650"
+            @change="onFeatureChange"
+          >
+            <swiper-item v-for="item in articles" :key="item.id">
+              <view class="feature-card" @click="openMagazine(item.id)">
+                <view class="feature-left">
+                  <image :src="item.cover" mode="aspectFill" class="feature-image" />
+                  <view class="feature-cover">
+                    <view class="feature-tag">Featured</view>
+                    <view class="feature-title">{{ item.title }}</view>
+                  </view>
+                </view>
+                <view class="feature-right">
+                  <view class="feature-sub">{{ item.subtitle }}</view>
+                  <view class="feature-link">
+                    {{ item.desc }}
+                    <image class="tiny-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
+                  </view>
+                </view>
+              </view>
+            </swiper-item>
+          </swiper>
+          <view class="feature-dots">
+            <view class="f-dot" :class="{ active: index === articleIndex }" v-for="(_, index) in articles" :key="index" />
+          </view>
+        </view>
+
+        <view class="menu-list">
+          <view class="menu-row" v-for="item in bottomMenus" :key="item.id" @click="openSub(item.id)">
+            <view class="menu-left">
+              <image class="menu-icon" :src="item.iconPath" mode="aspectFit" />
+              <text class="menu-label">{{ item.label }}</text>
+            </view>
+            <image class="menu-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
+          </view>
+        </view>
+
+        <view class="logout-section" v-if="profile.isLoggedIn || getToken()">
+          <view class="logout-btn" @click="handleLogout">
+            <image class="logout-icon" src="/static/icons/close.svg" mode="aspectFit" />
+            <text class="logout-text">退出登录</text>
+          </view>
         </view>
       </view>
-    </view>
+    </scroll-view>
 
     <AuthModal :visible="showAuth" @close="showAuth = false" @success="handleAuthSuccess" />
     <BottomNav current="/pages/member/index" />
@@ -95,10 +109,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
+import CustomRefresher from '@/components/CustomRefresher.vue';
 import AuthModal from '@/components/AuthModal.vue';
 import BottomNav from '@/components/BottomNav.vue';
 import { memberArticles } from '@/mock/data';
-import { getLocalProfile, setLoginState, setLocalProfile, trackPath, getToken, clearSession } from '@/store/session';
+import { getLocalProfile, setLocalProfile, trackPath, getToken, clearSession } from '@/store/session';
 import { getCurrentUser, getMemberHome } from '@/api/modules/member';
 import { tracker } from '@/utils/tracker';
 import type { Magazine } from '@/types/domain';
@@ -107,6 +122,10 @@ const profile = ref(getLocalProfile());
 const showAuth = ref(false);
 const pendingId = ref('');
 const protectedIds = ['package', 'postpartum', 'coupon'];
+
+// 自定义刷新状态
+const isRefresherTriggered = ref(false);
+const refresherStatus = ref<'pulling' | 'refreshing' | 'success' | 'none'>('none');
 
 // 会员等级标签映射
 function getMemberLevelLabel(level?: string): string {
@@ -216,18 +235,10 @@ onLoad(() => {
   trackPath('会员中心');
 });
 
-onShow(async () => {
-  profile.value = getLocalProfile();
+async function loadData() {
   const token = getToken();
+  if (!profile.value.isLoggedIn && !token) return;
 
-  // 检查登录状态：profile.isLoggedIn 或 token 存在
-  if (!profile.value.isLoggedIn && !token) {
-    // 未登录，弹出登录弹窗
-    showAuth.value = true;
-    return;
-  }
-
-  // 已登录，尝试从后端获取最新用户信息
   try {
     const [userRes, homeRes] = await Promise.all([
       getCurrentUser(),
@@ -235,7 +246,6 @@ onShow(async () => {
     ]);
     
     if (userRes.code === 0 && userRes.data) {
-      // 更新本地用户资料
       const updatedProfile = {
         ...profile.value,
         ...userRes.data,
@@ -250,16 +260,61 @@ onShow(async () => {
       articles.value = homeRes.data.magazines;
     }
   } catch (e) {
-    // 4003 错误已在 httpRequest 中统一处理（清除登录态）
-    // 其他错误保持本地缓存作为兜底
     console.error('Failed to fetch user profile or home data:', e);
   }
+}
+
+onShow(async () => {
+  profile.value = getLocalProfile();
+  const token = getToken();
+
+  if (!profile.value.isLoggedIn && !token) {
+    showAuth.value = true;
+    return;
+  }
+
+  await loadData();
 });
+
+async function onRefresherRefresh() {
+  if (isRefresherTriggered.value) return;
+  
+  isRefresherTriggered.value = true;
+  refresherStatus.value = 'refreshing';
+  
+  try {
+    await loadData();
+    
+    // 显示成功状态并停留一会
+    refresherStatus.value = 'success';
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  } finally {
+    isRefresherTriggered.value = false;
+    refresherStatus.value = 'none';
+  }
+}
+
+function onRefresherPulling() {
+  if (refresherStatus.value === 'none') {
+    refresherStatus.value = 'pulling';
+  }
+}
+
+function onRefresherRestore() {
+  refresherStatus.value = 'none';
+}
 </script>
 
 <style scoped>
 .member-page {
   background: #f5f5f0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.full-scroll {
+  width: 100%;
+  height: 100%;
 }
 
 .member-head {

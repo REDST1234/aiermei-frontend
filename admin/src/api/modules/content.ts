@@ -1,6 +1,6 @@
 import { useUserStore } from '@/stores/user'
 import { get, post, put, del } from '../request'
-import type { Article, ArticleTag, ContentCategory, PageResponse } from '@/types'
+import type { Article, ArticleTag, ContentCategory, PageResponse, PresetQuestion } from '@/types'
 
 // 获取文章列表
 export function getArticles(params: { 
@@ -77,4 +77,25 @@ export function addArticleTag(articleId: string, data: { tagCode: string; tagNam
 
 export function deleteArticleTag(articleId: string, tagCode: string) {
   return del<void>(`${useUserStore().apiPrefix}/articles/${articleId}/tags/${tagCode}`)
+}
+
+// 预设问题 CRUD
+export function getPresetQuestions() {
+  return get<PresetQuestion[]>(`${useUserStore().apiPrefix}/content/preset-questions`)
+}
+
+export function getPresetQuestion(id: string) {
+  return get<PresetQuestion>(`${useUserStore().apiPrefix}/content/preset-questions/${id}`)
+}
+
+export function createPresetQuestion(data: PresetQuestion) {
+  return post<PresetQuestion>(`${useUserStore().apiPrefix}/content/preset-questions`, data)
+}
+
+export function updatePresetQuestion(id: string, data: PresetQuestion) {
+  return put<PresetQuestion>(`${useUserStore().apiPrefix}/content/preset-questions/${id}`, data)
+}
+
+export function deletePresetQuestion(id: string) {
+  return del<void>(`${useUserStore().apiPrefix}/content/preset-questions/${id}`)
 }

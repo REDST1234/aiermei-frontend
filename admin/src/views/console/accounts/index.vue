@@ -54,11 +54,8 @@
           <el-input v-model="form.password" type="password" show-password placeholder="8-32位，须含字母与数字" />
         </el-form-item>
         <el-form-item label="权限" prop="permissions">
-          <el-select v-model="form.permissions" multiple placeholder="请选择权限集">
+          <el-select v-model="form.permissions" placeholder="请选择权限集">
             <el-option label="全部权限 (*)" value="*" />
-            <el-option label="基础查看" value="base.view" />
-            <el-option label="内容编辑" value="content.edit" />
-            <el-option label="员工门户" value="employee.portal" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -92,7 +89,7 @@ const form = reactive({
   name: '',
   avatar: '',
   password: '',
-  permissions: [] as string[]
+  permissions: '*'
 })
 
 const rules = {
@@ -120,7 +117,7 @@ const handleAdd = () => {
   form.name = ''
   form.avatar = ''
   form.password = ''
-  form.permissions = activeTab.value === 'staff' ? ['employee.portal'] : []
+  form.permissions = '*'
   dialogVisible.value = true
 }
 
@@ -130,7 +127,7 @@ const handleEdit = (row: any) => {
   form.username = row.username
   form.name = row.name
   form.avatar = row.avatar
-  form.permissions = [...(row.permissions || [])]
+  form.permissions = Array.isArray(row.permissions) ? (row.permissions[0] || '*') : (row.permissions || '*')
   dialogVisible.value = true
 }
 
@@ -142,16 +139,16 @@ const submitForm = async () => {
       try {
         if (isEdit.value) {
           if (activeTab.value === 'staff') {
-            await accountApi.updateStaffAccount(form.id, form)
+            await accountApi.updateStaffAccount(form.id, { ...form, permissions: [form.permissions] })
           } else {
-            await accountApi.updateAdminAccount(form.id, form)
+            await accountApi.updateAdminAccount(form.id, { ...form, permissions: [form.permissions] })
           }
           ElMessage.success('更新成功')
         } else {
           if (activeTab.value === 'staff') {
-            await accountApi.createStaffAccount(form)
+            await accountApi.createStaffAccount({ ...form, permissions: [form.permissions] })
           } else {
-            await accountApi.createAdminAccount(form)
+            await accountApi.createAdminAccount({ ...form, permissions: [form.permissions] })
           }
           ElMessage.success('创建成功')
         }

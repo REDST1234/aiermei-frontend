@@ -59,6 +59,14 @@ export function updateTagDictionary(tagCode: string, data: Partial<AdminTagDictI
   return put<AdminTagDictItem>(`/admin/tag-dictionary/${tagCode}`, data)
 }
 
+export function createTagDictionary(data: Partial<AdminTagDictItem>) {
+  return post<AdminTagDictItem>(`/admin/tag-dictionary`, data)
+}
+
+export function deleteTagDictionary(tagCode: string) {
+  return del<void>(`/admin/tag-dictionary/${tagCode}`)
+}
+
 export function uploadFile(file: File, bizType: string) {
   const formData = new FormData()
   formData.append('file', file)

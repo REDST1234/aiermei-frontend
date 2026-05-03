@@ -170,10 +170,43 @@ export interface UserJourney {
   uid: string;
   paths: {
     path: string;
+    displayName?: string;
+    rawPath?: string;
+    eventId?: string;
+    eventType?: string;
+    pathName?: string;
+    durationSeconds?: number;
+    totalDurationSeconds?: number;
+    metadata?: Record<string, any>;
+    context?: string;
+    repeatCount?: number;
     timestamp: string;
   }[];
   tags: string[];
   lastActive: string;
+}
+
+// 预设问题
+export interface PresetQuestion {
+  id?: string;
+  questionId?: string;
+  question: string;
+  answer: string;
+  category: string;
+  sortNo: number;
+}
+
+// 产后服务
+export interface PostpartumService {
+  id?: string;
+  serviceId?: string;
+  uid: string;
+  orderId?: string;
+  serviceName: string;
+  appointmentTime: string;
+  durationMinutes: number;
+  expertName: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
 }
 
 // AI 分析结果
@@ -181,8 +214,8 @@ export interface AnalysisResult {
   concerns?: TagItem[];
   anxieties?: TagItem[];
   behaviors?: TagItem[];
-  tags: string[];
-  script: string;
+  tags: Array<TagItem | string>;
+  summary: string;
 }
 
 export interface TagItem {

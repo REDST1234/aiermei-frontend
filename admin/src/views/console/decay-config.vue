@@ -1,12 +1,13 @@
-﻿<template>
+<template>
   <div class="console-page">
     <div class="page-header"><h1 class="page-title">行为热度衰减设置</h1></div>
 
     <div class="card console-panel panel intro">
       <div class="intro-title">怎么理解这三个参数？</div>
-      <div class="intro-item"><b>初始热度</b>：用户刚发生这个行为时，给多少分。</div>
+      <div class="intro-item"><b>初始热度</b>：行为发生时的初始权重，目前统一锁定为 100%（即参数值为 1.0）。</div>
       <div class="intro-item"><b>降温速度</b>：分数随时间下降的快慢，越大降得越快。</div>
       <div class="intro-item"><b>最低保留值</b>：再久也保留的最低分，避免完全归零。</div>
+      <div class="intro-tip">提示：因系统标签衰减均以百分比（%）形式展示，初始权重统一锁定为 1.0 (100%) 不可修改。</div>
     </div>
 
     <div class="card console-panel panel">
@@ -15,9 +16,9 @@
         <el-table-column label="业务解释" min-width="220">
           <template #default="{ row }">{{ row.desc }}</template>
         </el-table-column>
-        <el-table-column label="初始热度" min-width="150">
+        <el-table-column label="初始热度" width="180">
           <template #default="{ row }">
-            <el-input-number v-model="row.initialWeight" :precision="3" :step="0.01" />
+            <el-input-number :model-value="1" disabled :precision="1" style="width: 120px" />
           </template>
         </el-table-column>
         <el-table-column label="降温速度" min-width="150">
@@ -89,4 +90,13 @@ onMounted(load)
 .intro { margin-bottom: 14px; }
 .intro-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #111827; }
 .intro-item { color: #4b5563; line-height: 1.8; font-size: 13px; }
+.intro-tip { 
+  margin-top: 12px; 
+  padding: 8px 12px; 
+  background: #eff6ff; 
+  color: #1e40af; 
+  border-radius: 6px; 
+  font-size: 12px;
+  border-left: 4px solid #3b82f6;
+}
 </style>

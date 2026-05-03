@@ -1,76 +1,97 @@
 <template>
   <view class="page content-page">
-    <view class="content-head">
+    <view class="content-head" id="contentHead">
       <view class="title">内容中心</view>
     </view>
 
-    <view class="main-wrap">
-      <view class="fortune-card fade-in">
-        <view class="fortune-top">
-          <view>
-            <view class="fortune-title">今日好运签</view>
-            <view class="fortune-sub">Daily Fortune</view>
+    <scroll-view
+      scroll-y
+      class="main-scroll"
+      :style="{ height: scrollHeight }"
+      refresher-enabled
+      :refresher-triggered="isRefresherTriggered"
+      @refresherrefresh="onRefresherRefresh"
+      @refresherpulling="onRefresherPulling"
+      @refresherrestore="onRefresherRestore"
+      @scrolltolower="onReachBottomScroll"
+    >
+      <view slot="refresher">
+        <CustomRefresher :status="refresherStatus" />
+      </view>
+
+      <view class="main-wrap">
+        <view class="fortune-card fade-in">
+          <view class="fortune-top">
+            <view>
+              <view class="fortune-title">今日好运签</view>
+              <view class="fortune-sub">Daily Fortune</view>
+            </view>
+            <view class="fortune-date">{{ formatDate(fortune?.date) }}</view>
           </view>
-          <view class="fortune-date">{{ formatDate(fortune?.date) }}</view>
-        </view>
-        <view class="fortune-grid">
-          <view class="fortune-col">
-            <view class="small-label">宜</view>
-            <view class="small-text">{{ fortune?.suitable || '放松训练' }}</view>
-          </view>
-          <view class="divider" />
-          <view class="fortune-col">
-            <view class="small-label">忌</view>
-            <view class="small-text">{{ fortune?.avoid || '焦虑熬夜' }}</view>
-          </view>
-        </view>
-        <view class="fortune-text">{{ typedGreeting }}</view>
-      </view>
-
-      <view class="qa-head">
-        <view class="line" />
-        <text>AI 问答精选</text>
-        <view class="line" />
-      </view>
-
-      <view class="qa-list">
-        <view class="qa-item" v-for="(item, idx) in questions.slice(0, 2)" :key="idx" @click="openQa(item)">
-          <text class="qa-q">{{ item.question }}</text>
-          <image class="qa-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
-        </view>
-        <view class="qa-ai" @click="openAIChat">
-          <view class="qa-ai-left">AI 专家对话</view>
-          <image class="qa-arrow white" src="/static/icons/arrow-right.svg" mode="aspectFit" />
-        </view>
-      </view>
-
-      <view class="tab-row">
-        <view
-          class="tab-btn"
-          :class="{ active: activeTab === tab.id }"
-          v-for="tab in tabs"
-          :key="tab.id"
-          @click="switchTab(tab.id)"
-        >
-          {{ tab.label }}
-        </view>
-      </view>
-
-      <view class="article-list">
-        <view class="article-card reveal" v-for="item in articles" :key="item.id" @click="openArticle(item.id)">
-          <view class="cover-wrap">
-            <image :src="item.cover" mode="aspectFill" class="cover" />
-            <view v-if="item.type === 'video'" class="play">
-              <image class="play-icon" src="/static/icons/play.svg" mode="aspectFit" />
+          <view class="fortune-grid">
+            <view class="fortune-col">
+              <view class="small-label">宜</view>
+              <view class="small-text">{{ fortune?.suitable || '放松训练' }}</view>
+            </view>
+            <view class="divider" />
+            <view class="fortune-col">
+              <view class="small-label">忌</view>
+              <view class="small-text">{{ fortune?.avoid || '焦虑熬夜' }}</view>
             </view>
           </view>
-          <view class="article-body">
-            <view class="article-title">{{ item.title }}</view>
-            <view class="article-meta">{{ item.author }} / Like {{ item.likes }}</view>
+          <view class="fortune-text">{{ typedGreeting }}</view>
+        </view>
+
+        <view class="qa-head">
+          <view class="line" />
+          <text>AI 问答精选</text>
+          <view class="line" />
+        </view>
+
+        <view class="qa-list">
+          <view class="qa-item" v-for="(item, idx) in questions.slice(0, 2)" :key="idx" @click="openQa(item)">
+            <text class="qa-q">{{ item.question }}</text>
+            <image class="qa-arrow" src="/static/icons/arrow-right.svg" mode="aspectFit" />
+          </view>
+          <view class="qa-ai" @click="openAIChat">
+            <view class="qa-ai-left">AI 专家对话</view>
+            <image class="qa-arrow white" src="/static/icons/arrow-right.svg" mode="aspectFit" />
           </view>
         </view>
+
+        <view class="tab-row">
+          <view
+            class="tab-btn"
+            :class="{ active: activeTab === tab.id }"
+            v-for="tab in tabs"
+            :key="tab.id"
+            @click="switchTab(tab.id)"
+          >
+            {{ tab.label }}
+          </view>
+        </view>
+
+        <view class="article-list">
+          <view class="article-card reveal" v-for="item in articles" :key="item.id" @click="openArticle(item.id)">
+            <view class="cover-wrap">
+              <image :src="item.cover" mode="aspectFill" class="cover" />
+              <view v-if="item.type === 'video'" class="play">
+                <image class="play-icon" src="/static/icons/play.svg" mode="aspectFit" />
+              </view>
+            </view>
+            <view class="article-body">
+              <view class="article-title">{{ item.title }}</view>
+              <view class="article-meta">{{ item.author }} / Like {{ item.likes }}</view>
+            </view>
+          </view>
+        </view>
+
+        <view class="loading-status" v-if="articles.length > 0">
+          <text v-if="isLoadingArticles">加载中...</text>
+          <text v-else-if="!hasMoreArticles">已经到底啦</text>
+        </view>
       </view>
-    </view>
+    </scroll-view>
 
     <view class="overlay" v-if="selectedQa" @click="selectedQa = null">
       <view class="qa-modal pop-in" @click.stop>
@@ -129,8 +150,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 import { onLoad, onUnload } from '@dcloudio/uni-app';
+import CustomRefresher from '@/components/CustomRefresher.vue';
 import BottomNav from '@/components/BottomNav.vue';
 import { getTodayFortune, getPresetQuestions, getArticles } from '@/api/modules/content';
 import { createSSEConnection, type SSEEvent } from '@/api/http';
@@ -187,6 +209,36 @@ let pendingAiChatSessionId: string | null = null;
 let pendingAiChatMsgId: string | null = null;
 let aiChatTrackedForCurrentSend = false;
 
+// 分页相关状态
+const page = ref(1);
+const pageSize = 10;
+const isLoadingArticles = ref(false);
+const hasMoreArticles = ref(true);
+
+// 自定义刷新状态
+const isRefresherTriggered = ref(false);
+const refresherStatus = ref<'pulling' | 'refreshing' | 'success' | 'none'>('none');
+const scrollHeight = ref('100vh');
+
+function updateScrollHeight() {
+  const sys = uni.getSystemInfoSync();
+  const query = uni.createSelectorQuery();
+  query.select('#contentHead').boundingClientRect(rect => {
+    if (rect) {
+      // 减去头部高度和底部导航高度（约160rpx）
+      const headHeight = rect.height;
+      const bottomNavHeight = uni.upx2px(160);
+      scrollHeight.value = `${sys.windowHeight - headHeight - bottomNavHeight}px`;
+    }
+  }).exec();
+}
+
+onMounted(() => {
+  nextTick(() => {
+    updateScrollHeight();
+  });
+});
+
 function formatDate(dateStr?: string): string {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
@@ -211,15 +263,86 @@ async function switchTab(tabId: string) {
     }
   });
   activeTab.value = tabId;
-  await loadArticles(tabId);
+  page.value = 1;
+  hasMoreArticles.value = true;
+  articles.value = [];
+  await loadArticles();
 }
 
-async function loadArticles(category: string) {
+async function loadArticles() {
+  if (isLoadingArticles.value || !hasMoreArticles.value) return;
+
+  isLoadingArticles.value = true;
   try {
-    const res = await getArticles(category, 1, 10);
-    articles.value = res.data.list;
+    const res = await getArticles(activeTab.value, page.value, pageSize);
+    if (res.code === 0 && res.data) {
+      const newList = res.data.list || [];
+      if (page.value === 1) {
+        articles.value = newList;
+      } else {
+        articles.value = [...articles.value, ...newList];
+      }
+      
+      hasMoreArticles.value = articles.value.length < res.data.total;
+      if (newList.length > 0) {
+        page.value++;
+      } else {
+        hasMoreArticles.value = false;
+      }
+    }
   } catch (e) {
     console.error('Failed to load articles:', e);
+  } finally {
+    isLoadingArticles.value = false;
+  }
+}
+
+async function onRefresherRefresh() {
+  if (isRefresherTriggered.value) return;
+  
+  isRefresherTriggered.value = true;
+  refresherStatus.value = 'refreshing';
+  
+  // 重置分页并重新加载数据
+  page.value = 1;
+  hasMoreArticles.value = true;
+  
+  try {
+    const [fortuneRes, qRes] = await Promise.all([
+      getTodayFortune().catch(() => ({ data: null })),
+      getPresetQuestions(2).catch(() => ({ data: [] })),
+      loadArticles()
+    ]);
+    
+    if (fortuneRes.data) fortune.value = fortuneRes.data;
+    if (qRes.data) questions.value = qRes.data;
+    
+    // 显示成功状态并停留一会
+    refresherStatus.value = 'success';
+    console.log('[Refresher] Status changed to success');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  } catch (err) {
+    console.error('[Refresher] Error during refresh:', err);
+  } finally {
+    isRefresherTriggered.value = false;
+    refresherStatus.value = 'none';
+    console.log('[Refresher] Status reset to none');
+  }
+}
+
+function onRefresherPulling() {
+  if (refresherStatus.value === 'none') {
+    refresherStatus.value = 'pulling';
+  }
+}
+
+function onRefresherRestore() {
+  refresherStatus.value = 'none';
+}
+
+function onReachBottomScroll() {
+  if (hasMoreArticles.value && !isLoadingArticles.value) {
+    loadArticles();
   }
 }
 
@@ -336,9 +459,20 @@ async function loadHistoryMessages(cursor?: string) {
   }
 }
 
-function loadMoreHistory() {
+function loadMoreHistory(e?: any) {
+  // 增加触发兜底与调试日志
+  console.log('[AI Chat] scrolltoupper triggered', {
+    hasMoreHistory,
+    nextCursor,
+    isLoadingHistory: isLoadingHistory.value,
+    detail: e?.detail
+  });
+
   if (hasMoreHistory && nextCursor && !isLoadingHistory.value) {
     loadHistoryMessages(nextCursor);
+  } else {
+    if (!hasMoreHistory) console.log('[AI Chat] loadMoreHistory intercepted: no more history');
+    if (isLoadingHistory.value) console.log('[AI Chat] loadMoreHistory intercepted: already loading');
   }
 }
 
@@ -520,7 +654,8 @@ onLoad(async () => {
 
   fortune.value = fortuneRes.data;
   questions.value = qRes.data;
-  articles.value = articlesRes.data.list;
+  // articles 由 loadArticles 处理了，不需要在这里赋值
+  // articles.value = articlesRes.data.list;
 
   if (fortune.value?.greeting) {
     startTyping(fortune.value.greeting);
@@ -554,8 +689,12 @@ onUnload(() => {
   letter-spacing: 4rpx;
 }
 
+.main-scroll {
+  width: 100%;
+}
+
 .main-wrap {
-  padding: 0 26rpx 170rpx;
+  padding: 0 26rpx 40rpx;
 }
 
 .fortune-card {
@@ -771,6 +910,13 @@ onUnload(() => {
   margin-top: 12rpx;
   font-size: 28rpx;
   color: #fb7185;
+}
+
+.loading-status {
+  padding: 30rpx 0 60rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #9ca3af;
 }
 
 .overlay {

@@ -43,7 +43,7 @@
       <template v-if="detail">
         <div class="detail-grid">
           <div><b>标签:</b> {{ detail.tagName }}</div>
-          <div><b>AI原因:</b> {{ detail.aiReason || '-' }}</div>
+          <div><b>参考原因:</b> {{ detail.aiReason || '-' }}</div>
           <div><b>候选数:</b> {{ detail.candidateCount }}</div>
         </div>
 
@@ -177,6 +177,10 @@ onMounted(loadList)
   background: #f8f9fa;
   border-radius: 8px;
   margin-bottom: 20px;
+  
+  & > div:last-child {
+    padding-left: 40px;
+  }
 }
 .section-title {
   font-size: 15px;

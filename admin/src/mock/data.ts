@@ -68,11 +68,43 @@ export const mockCustomers: Customer[] = Array.from({ length: 50 }, (_, i) => {
 
 export function mockUserJourney(uid: string): UserJourney {
   const paths = [
-    { path: '首页', timestamp: new Date(Date.now() - 3600000).toISOString() },
-    { path: '月子中心', timestamp: new Date(Date.now() - 3000000).toISOString() },
-    { path: '房型详情-尊享至尊套房', timestamp: new Date(Date.now() - 2400000).toISOString() },
-    { path: '内容中心', timestamp: new Date(Date.now() - 1800000).toISOString() },
-    { path: '文章-产后恢复', timestamp: new Date(Date.now() - 1200000).toISOString() }
+    {
+      path: '文章详情',
+      displayName: '文章详情',
+      rawPath: '/pages/content/detail',
+      eventId: 'E_202604281520001',
+      eventType: 'ARTICLE_VIEW',
+      pathName: 'Article Detail',
+      durationSeconds: 18,
+      totalDurationSeconds: 43,
+      metadata: {
+        articleId: 'A_102',
+        title: '产后恢复饮食建议',
+        category: 'postpartum'
+      },
+      context: '浏览文章「产后恢复饮食建议」（分类：postpartum）3次，总停留 43 秒，最长单次 18 秒',
+      repeatCount: 3,
+      timestamp: new Date(Date.now() - 3600000).toISOString()
+    },
+    {
+      path: '房型详情',
+      displayName: '房型详情',
+      rawPath: '/pages/suite/detail',
+      eventId: 'E_202604281530001',
+      eventType: 'PAGE_VIEW',
+      pathName: 'Suite Detail',
+      metadata: { suiteId: 'luxury' },
+      context: '浏览了「套房详情」',
+      timestamp: new Date(Date.now() - 3000000).toISOString()
+    },
+    {
+      path: '预约意向',
+      displayName: '预约意向',
+      eventType: 'APPOINTMENT_INTENT',
+      metadata: { intent: 'high', suiteId: 'luxury' },
+      context: '表达了高强度的预约意向',
+      timestamp: new Date(Date.now() - 2400000).toISOString()
+    }
   ]
   return {
     uid,
@@ -85,7 +117,7 @@ export function mockUserJourney(uid: string): UserJourney {
 export function mockAnalysisResult(): AnalysisResult {
   return {
     tags: ['高净值客户', '套房意向强', '关注产后康复'],
-    script: '建议先介绍行政套房，重点突出私密性和专业护理团队。客户对产后康复服务有明显兴趣，可以套餐形式推荐骨盆修复、腹直肌修复项目。预算充足，可直接推荐高端套餐。'
+    summary: '用户通过微信小程序主动探索，对AI咨询功能表现出较高兴趣，但会话浅层，核心需求为“如何选择月子套餐”。'
   }
 }
 

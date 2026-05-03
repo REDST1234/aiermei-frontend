@@ -114,7 +114,8 @@ const employeeMenus: MenuNode[] = [
       { index: '/content/banners', title: '海报管理' },
       { index: '/content/magazines', title: '杂志管理' },
       { index: '/content/suites', title: '套餐管理' },
-      { index: '/content/facilities', title: '设施管理' }
+      { index: '/content/facilities', title: '设施管理' },
+      { index: '/content/preset-questions', title: '预设问题' }
     ]
   },
   {
@@ -122,6 +123,7 @@ const employeeMenus: MenuNode[] = [
     title: '服务配置',
     icon: Setting,
     children: [
+      { index: '/service/postpartum-services', title: '产后服务' },
       { index: '/service/faq', title: 'FAQ管理' },
       { index: '/service/hotline', title: '热线管理' },
       { index: '/service/center', title: '中心配置' }
@@ -206,6 +208,14 @@ function handleCommand(command: string) {
   background: #111827 !important;
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+
+  /* Hide scrollbar */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .layout-menu :deep(.el-menu) {
