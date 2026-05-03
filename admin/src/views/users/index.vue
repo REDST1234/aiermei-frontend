@@ -449,7 +449,7 @@ function metricPreview(user: Customer, type: 'conversionIntent' | 'spendingPower
 }
 
 function insightPreview(user: Customer) {
-  return user.aiSummary || user.profileSummary || '未备注'
+  return user.aiSummary || '未备注'
 }
 
 function sourceTypeLabel(sourceType: string) {
@@ -514,7 +514,7 @@ async function loadProfileData(uid: string) {
     if (detailRes.data) selectedUser.value = detailRes.data as Customer
     userJourney.value = journeyRes.data as UserJourney
     analysisResult.value = {
-      summary: selectedUser.value?.aiSummary || selectedUser.value?.profileSummary || '',
+      summary: selectedUser.value?.aiSummary || '',
       tags: []
     } as AnalysisResult
     customerTags.value = tagsRes.data as CustomerTag[]
