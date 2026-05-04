@@ -78,7 +78,6 @@ import {
   DocumentCopy,
   Expand,
   Fold,
-  OfficeBuilding,
   Memo,
   Setting,
   Ticket,
@@ -86,10 +85,12 @@ import {
   User
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { useUiFeatureStore } from '@/stores/ui-feature'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const uiFeatureStore = useUiFeatureStore()
 
 const isCollapse = ref(false)
 const activeMenu = computed(() => route.path)
@@ -141,7 +142,20 @@ const adminMenus: MenuNode[] = [
   { index: '/console/dictionary', title: '字典管理', icon: Memo }
 ]
 
-const visibleMenus = computed(() => (userStore.isAdmin ? adminMenus : employeeMenus))
+const visibleMenus = computed(() => {
+  if (userStore.isAdmin) {
+    return adminMenus
+  }
+  return employeeMenus.filter((item) => {
+    if (item.index === '/orders') {
+      return !uiFeatureStore.hideOrderUi
+    }
+    if (item.index === '/coupons') {
+      return !uiFeatureStore.hideCouponUi
+    }
+    return true
+  })
+})
 
 function handleCommand(command: string) {
   if (command === 'profile') {

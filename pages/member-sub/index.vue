@@ -161,6 +161,7 @@ import EmptyState from '@/components/EmptyState.vue';
 import { getFaqCategories, getFaqItems, getMemberCoupons, getServiceHotlines, getPostpartumServices, submitComplaint, submitEvaluation } from '@/api/modules/member';
 import { getSuites } from '@/api/modules/center';
 import { trackPath } from '@/store/session';
+import { refreshUiFeatures } from '@/store/ui-features';
 import type { Coupon, PostpartumService, FaqCategory, FaqItem, Suite, HotlineInfo } from '@/types/domain';
 
 const type = ref('evaluation');
@@ -319,7 +320,14 @@ async function loadByType() {
 }
 
 onLoad(async (query) => {
-  type.value = String(query?.id || 'evaluation');
+  const targetType = String(query?.id || 'evaluation');
+  const uiFeatures = await refreshUiFeatures();
+  if (targetType === 'coupon' && uiFeatures.hideCouponUi) {
+    uni.showToast({ title: '该功能暂不可用', icon: 'none' });
+    uni.redirectTo({ url: '/pages/member/index' });
+    return;
+  }
+  type.value = targetType;
   trackPath(`会员子页:${type.value}`);
   await loadByType();
 });

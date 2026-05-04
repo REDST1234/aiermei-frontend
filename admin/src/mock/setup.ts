@@ -155,6 +155,11 @@ const state = {
     { sourceChannel: 'friend_share', label: '朋友圈分享', count: 32, ratio: 0.32 },
     { sourceChannel: 'ai_transfer', label: 'AI客服转接', count: 23, ratio: 0.23 }
   ] as AnyObj[],
+  uiFeatures: {
+    hideRevenueUi: false,
+    hideOrderUi: false,
+    hideCouponUi: false
+  } as AnyObj,
   centerFacilities: [
     { id: '205888001', title: '瑜伽康复室', desc: '用于产后拉伸与体态修复课程', image: 'https://picsum.photos/seed/fac_1/600/360', sort: 1 },
     { id: '205888002', title: '婴儿游泳区', desc: '用于宝宝抚触、游泳与早教互动', image: 'https://picsum.photos/seed/fac_2/600/360', sort: 2 }
@@ -318,6 +323,22 @@ export function setupMock() {
 
     if (normalizedPath === '/admin/auth/logout' && method === 'POST') {
       return createResponse(config, null)
+    }
+
+    if (normalizedPath === '/ui/features' && method === 'GET') {
+      return createResponse(config, state.uiFeatures)
+    }
+    if (normalizedPath === '/admin/ui/features' && method === 'GET') {
+      return createResponse(config, state.uiFeatures)
+    }
+    if (normalizedPath === '/admin/ui/features' && method === 'PUT') {
+      state.uiFeatures = {
+        ...state.uiFeatures,
+        ...(body.hideRevenueUi !== undefined ? { hideRevenueUi: Boolean(body.hideRevenueUi) } : {}),
+        ...(body.hideOrderUi !== undefined ? { hideOrderUi: Boolean(body.hideOrderUi) } : {}),
+        ...(body.hideCouponUi !== undefined ? { hideCouponUi: Boolean(body.hideCouponUi) } : {})
+      }
+      return createResponse(config, state.uiFeatures)
     }
 
     if (path === '/files/upload' && method === 'POST') {

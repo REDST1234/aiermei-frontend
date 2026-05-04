@@ -260,10 +260,18 @@
               <section class="panel">
                 <h3>纠偏操作日志</h3>
                 <el-table :data="tagCorrectionLogs" size="small" max-height="240">
-                  <el-table-column prop="action" label="动作" width="80" />
-                  <el-table-column prop="tagName" label="标签" min-width="120" />
-                  <el-table-column prop="reason" label="原因" min-width="140" />
-                  <el-table-column prop="operator" label="操作人" width="90" />
+                  <el-table-column label="动作" width="80">
+                    <template #default="{ row }">{{ correctionActionLabel(row.action) }}</template>
+                  </el-table-column>
+                  <el-table-column label="标签" min-width="120">
+                    <template #default="{ row }">{{ row.tagName || row.tagCode || '-' }}</template>
+                  </el-table-column>
+                  <el-table-column label="原因" min-width="140">
+                    <template #default="{ row }">{{ correctionReasonText(row) }}</template>
+                  </el-table-column>
+                  <el-table-column label="操作人" width="120">
+                    <template #default="{ row }">{{ row.operatorName || '已离职员工' }}</template>
+                  </el-table-column>
                 </el-table>
               </section>
             </div>
@@ -475,6 +483,22 @@ function eventTypeLabel(eventType?: string) {
   return map[eventType] || eventType
 }
 
+function correctionActionLabel(action?: string) {
+  const map: Record<string, string> = {
+    ADD: '新增',
+    REMOVE: '移除',
+    MERGE: '并入'
+  }
+  return (action && map[action]) || action || '-'
+}
+
+function correctionReasonText(log: CustomerTagCorrectionLog) {
+  if (log.note) return log.note
+  if (log.reason) return log.reason
+  if (log.action === 'MERGE') return '并入标签'
+  return '-'
+}
+
 function handleSearch() {
   pagination.page = 1
   void loadUsers()
@@ -561,6 +585,7 @@ async function submitManualScore() {
     await submitCustomerManualScore(selectedUser.value.uid, payload)
     initialScoreSnapshot.value = JSON.stringify(scoreDimensions.map((x) => ({ key: x.key, score: x.score })))
     initialNoteSnapshot.value = manualScoreNote.value
+    profileDialogVisible.value = false
     ElMessage.success('人工评分已确认提交')
   } finally {
     submittingScore.value = false
@@ -1319,3 +1344,8 @@ onMounted(() => {
 }
 
 </style>
+
+
+
+
+

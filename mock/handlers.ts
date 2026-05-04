@@ -65,6 +65,13 @@ export function mockRoute(url: string, method: string, data?: any): ApiResponse<
     case 'GET /api/v1/suites':
       return createMockResponse(suites);
 
+    case 'GET /api/v1/appointments/qrcode':
+      return createMockResponse({
+        qrCodeUrl: `https://picsum.photos/seed/appointment_qr_${query.sourceType || 'default'}_${query.sourceId || '0'}/400/400`,
+        consultantName: '到店顾问',
+        tips: '扫码预约顾问'
+      });
+
     // 会员中心
     case 'GET /api/v1/users/me':
       return createMockResponse({
@@ -102,6 +109,13 @@ export function mockRoute(url: string, method: string, data?: any): ApiResponse<
 
     case 'GET /api/v1/member/coupons':
       return createMockResponse(coupons);
+
+    case 'GET /api/v1/ui/features':
+      return createMockResponse({
+        hideRevenueUi: false,
+        hideOrderUi: false,
+        hideCouponUi: false
+      });
 
     case 'GET /api/v1/member/packages':
       return createMockResponse(suites);

@@ -93,3 +93,9 @@ export interface UpdateUserReq {
   pregnancyType?: 'pregnancy' | 'postpartum';
   pregnancyDate?: string;
 }
+
+export interface UiFeaturesResponse {
+  hideRevenueUi: boolean;
+  hideOrderUi: boolean;
+  hideCouponUi: boolean;
+}

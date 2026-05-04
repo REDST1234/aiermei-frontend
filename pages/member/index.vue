@@ -40,8 +40,18 @@
           <view class="line" />
         </view>
 
-        <view class="service-grid">
-          <view class="service-card" v-for="item in topServices" :key="item.id" @click="openSub(item.id)">
+        <view
+          class="service-grid"
+          :class="{ 'service-grid-compact': isAllBusinessHidden }"
+          :style="{ '--service-columns': serviceColumnCount }"
+        >
+          <view
+            class="service-card"
+            :class="{ 'service-card-compact': isAllBusinessHidden }"
+            v-for="item in topServices"
+            :key="item.id"
+            @click="openSub(item.id)"
+          >
             <view class="service-icon">
               <image class="service-icon-img" :src="item.iconPath" mode="aspectFit" />
             </view>
@@ -107,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import CustomRefresher from '@/components/CustomRefresher.vue';
 import AuthModal from '@/components/AuthModal.vue';
@@ -116,9 +126,11 @@ import { memberArticles } from '@/mock/data';
 import { getLocalProfile, setLocalProfile, trackPath, getToken, clearSession } from '@/store/session';
 import { getCurrentUser, getMemberHome } from '@/api/modules/member';
 import { tracker } from '@/utils/tracker';
+import { getUiFeatureCache, refreshUiFeatures } from '@/store/ui-features';
 import type { Magazine } from '@/types/domain';
 
 const profile = ref(getLocalProfile());
+const uiFeatures = ref(getUiFeatureCache());
 const showAuth = ref(false);
 const pendingId = ref('');
 const protectedIds = ['package', 'postpartum', 'coupon'];
@@ -137,11 +149,25 @@ function getMemberLevelLabel(level?: string): string {
   return level ? labels[level] || level.toUpperCase() + ' MEMBER' : 'GUEST';
 }
 
-const topServices = [
+const rawTopServices = [
   { id: 'package', label: '我的套餐', iconPath: '/static/icons/package.svg' },
   { id: 'coupon', label: '我的优惠券', iconPath: '/static/icons/ticket.svg' },
   { id: 'postpartum', label: '产后服务', iconPath: '/static/icons/heart.svg' }
 ];
+
+const topServices = computed(() => {
+  return rawTopServices.filter((item) => !(item.id === 'coupon' && uiFeatures.value.hideCouponUi));
+});
+
+const serviceColumnCount = computed(() => {
+  const count = topServices.value.length;
+  if (count >= 3) return 3;
+  return Math.max(1, count);
+});
+
+const isAllBusinessHidden = computed(() => (
+  uiFeatures.value.hideRevenueUi && uiFeatures.value.hideOrderUi && uiFeatures.value.hideCouponUi
+));
 
 const bottomMenus = [
   { id: 'hotline', label: '服务热线', iconPath: '/static/icons/phone.svg' },
@@ -233,6 +259,9 @@ function openEditProfile() {
 
 onLoad(() => {
   trackPath('会员中心');
+  void refreshUiFeatures().then((features) => {
+    uiFeatures.value = features;
+  });
 });
 
 async function loadData() {
@@ -265,6 +294,7 @@ async function loadData() {
 }
 
 onShow(async () => {
+  uiFeatures.value = await refreshUiFeatures();
   profile.value = getLocalProfile();
   const token = getToken();
 
@@ -406,8 +436,14 @@ function onRefresherRestore() {
 
 .service-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--service-columns, 3), 1fr);
   gap: 14rpx;
+}
+
+.service-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 250rpx));
+  justify-content: center;
+  gap: 12rpx;
 }
 
 .service-card {
@@ -419,6 +455,27 @@ function onRefresherRestore() {
   align-items: center;
   justify-content: center;
   gap: 14rpx;
+}
+
+.service-card-compact {
+  width: 250rpx;
+  height: 250rpx;
+  aspect-ratio: auto;
+  gap: 10rpx;
+}
+
+.service-card-compact .service-icon {
+  width: 62rpx;
+  height: 62rpx;
+}
+
+.service-card-compact .service-icon-img {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.service-card-compact .service-label {
+  font-size: 24rpx;
 }
 
 .service-icon {

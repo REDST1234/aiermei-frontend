@@ -51,7 +51,7 @@
           </swiper>
           <image v-else :src="selected.coverImage" class="detail-img" mode="aspectFill" />
           <view class="hero-mask" />
-          <view class="close" @click="selected = null">
+          <view class="close" @click="closeDetail">
             <image class="close-icon" src="/static/icons/arrow-left.svg" mode="aspectFit" />
           </view>
           <view class="indicators" v-if="selected.images && selected.images.length > 1">
@@ -79,6 +79,14 @@
           </view>
         </scroll-view>
       </view>
+
+      <view v-if="showQr" class="qr-overlay" @click="showQr = false">
+        <view class="qr-box" @click.stop>
+          <view class="qr-title">{{ qrTips || '扫码预约顾问' }}</view>
+          <image class="qr" :src="qrCodeUrl" mode="aspectFill" />
+          <button class="book-btn qr-confirm-btn" @click="showQr = false">我知道了</button>
+        </view>
+      </view>
     </view>
 
     <AuthModal :visible="showAuth" @close="showAuth = false" @success="handleAuthSuccess" />
@@ -88,7 +96,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { getSuites, getSuiteDetail } from '@/api/modules/center';
+import { getSuites, getSuiteDetail, getAppointmentQrCode } from '@/api/modules/center';
 import { trackPath, getLocalProfile, getToken, setLocalProfile } from '@/store/session';
 import { getCurrentUser } from '@/api/modules/member';
 import AuthModal from '@/components/AuthModal.vue';
@@ -100,12 +108,15 @@ const selected = ref<Suite | null>(null);
 const currentImageIndex = ref(0);
 const isLoggedIn = ref(false);
 const showAuth = ref(false);
+const showQr = ref(false);
+const qrCodeUrl = ref('https://picsum.photos/seed/qr_suite/360/360');
+const qrTips = ref('扫码预约顾问');
 
 function goBack() {
   uni.navigateBack();
 }
 
-function handleBook() {
+async function handleBook() {
   if (selected.value) {
     tracker.track('APPOINTMENT_INTENT', {
       path: '/pages/suite-details/index',
@@ -118,8 +129,28 @@ function handleBook() {
         intentLevel: 'HIGH'
       }
     });
-    uni.showToast({ title: '预约功能在此为演示，埋点已发出', icon: 'none' });
+
+    try {
+      const qrRes = await getAppointmentQrCode('suite', selected.value.id);
+      if (qrRes?.data?.qrCodeUrl) {
+        qrCodeUrl.value = qrRes.data.qrCodeUrl;
+      }
+      if (qrRes?.data?.tips) {
+        qrTips.value = qrRes.data.tips;
+      } else {
+        qrTips.value = '扫码预约顾问';
+      }
+    } catch (e) {
+      console.error('Failed to load suite appointment qrcode:', e);
+      uni.showToast({ title: '二维码获取失败，请稍后重试', icon: 'none' });
+    }
+    showQr.value = true;
   }
+}
+
+function closeDetail() {
+  showQr.value = false;
+  selected.value = null;
 }
 
 function handleAuthSuccess() {
@@ -258,6 +289,40 @@ onLoad(async () => {
   inset: 0;
   z-index: 130;
   background: #f5f5f0;
+}
+
+.qr-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48rpx;
+  z-index: 20;
+}
+
+.qr-box {
+  width: 100%;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 34rpx;
+  text-align: center;
+}
+
+.qr-title {
+  font-size: 34rpx;
+  margin-bottom: 24rpx;
+}
+
+.qr {
+  width: 400rpx;
+  height: 400rpx;
+  margin: 0 auto 24rpx;
+}
+
+.qr-confirm-btn {
+  margin-top: 0;
 }
 
 .detail-panel {

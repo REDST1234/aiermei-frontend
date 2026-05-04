@@ -47,7 +47,10 @@ export interface TagPendingItem {
   mentionCount: number;
   firstSeenAt: string;
   lastSeenAt: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'MERGED';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  reviewAction?: 'APPROVE' | 'REJECT' | 'MERGE' | null;
+  mergedToTagCode?: string | null;
+  mergedToTagName?: string | null;
   candidateCount: number;
   topCandidate?: TagPendingCandidate | null;
 }
@@ -55,8 +58,6 @@ export interface TagPendingItem {
 export interface TagPendingDetail extends TagPendingItem {
   reviewedBy?: string | null;
   reviewedAt?: string | null;
-  reviewAction?: 'APPROVE' | 'REJECT' | 'MERGE' | null;
-  mergedToTagCode?: string | null;
   candidates: TagPendingCandidate[];
 }
 
@@ -269,15 +270,19 @@ export interface CustomerManualScoreSubmitResponse {
 }
 
 export interface CustomerTagCorrectionLog {
-  id: string;
-  uid: string;
-  action: 'ADD' | 'REMOVE';
+  id?: string;
+  logId?: string;
+  uid?: string;
+  action: 'ADD' | 'REMOVE' | 'MERGE';
   tagCode: string;
-  tagName: string;
+  tagName?: string;
+  note?: string;
   reason?: string;
-  source: 'MANUAL';
-  operator: string;
-  operatedAt: string;
+  source: 'MANUAL' | string;
+  operator?: string;
+  operatorName?: string;
+  operatedAt?: string;
+  createdAt?: string;
 }
 
 export interface CustomerTagTraceRecord {
@@ -309,6 +314,12 @@ export interface DashboardOverview {
   avgStayMinutes: number;
   leadConversionRate: number;
   hotContentTitle: string;
+}
+
+export interface UiFeaturesResponse {
+  hideRevenueUi: boolean;
+  hideOrderUi: boolean;
+  hideCouponUi: boolean;
 }
 
 // 文章
@@ -460,3 +471,6 @@ export interface ChangePasswordRequest {
   newPassword?: string;
   confirmPassword?: string;
 }
+
+
+

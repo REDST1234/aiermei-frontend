@@ -9,6 +9,7 @@ import App from './App.vue'
 import router from './router'
 import './styles/index.scss'
 import { setupMock } from './mock/setup'
+import { useUiFeatureStore } from '@/stores/ui-feature'
 
 // Mock is disabled by default to avoid interfering with backend integration.
 // Enable only when explicitly needed:
@@ -18,13 +19,17 @@ if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK === 'true') {
 }
 
 const app = createApp(App)
+const pinia = createPinia()
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-app.use(createPinia())
-app.use(router)
-app.use(ElementPlus, { locale: zhCn })
+app.use(pinia)
 
-app.mount('#app')
+const uiFeatureStore = useUiFeatureStore(pinia)
+void uiFeatureStore.initFeatures().finally(() => {
+  app.use(router)
+  app.use(ElementPlus, { locale: zhCn })
+  app.mount('#app')
+})

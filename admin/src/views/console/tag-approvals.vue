@@ -20,7 +20,16 @@
         <el-table-column prop="tagName" label="标签名" min-width="180" />
 
         <el-table-column prop="mentionCount" label="提及数" width="100" />
-        <el-table-column prop="status" label="状态" width="120" />
+        <el-table-column label="状态" width="120">
+          <template #default="{ row }">
+            {{ statusText(row) }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="query.status === 'MERGED'" label="并入目标" min-width="160">
+          <template #default="{ row }">
+            {{ row.reviewAction === 'MERGE' ? (row.mergedToTagName || '-') : '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="lastSeenAt" label="最后出现" min-width="180" />
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
@@ -45,6 +54,7 @@
           <div><b>标签:</b> {{ detail.tagName }}</div>
           <div><b>参考原因:</b> {{ detail.aiReason || '-' }}</div>
           <div><b>候选数:</b> {{ detail.candidateCount }}</div>
+          <div><b>并入到:</b> {{ detail.reviewAction === 'MERGE' ? (detail.mergedToTagName || '-') : '-' }}</div>
         </div>
 
         <div class="section-title">候选标签建议</div>
@@ -161,6 +171,14 @@ function getSimilarityColor(similarity: number) {
   if (similarity >= 0.8) return '#67C23A'
   if (similarity >= 0.5) return '#409EFF'
   return '#E6A23C'
+}
+
+function statusText(row: TagPendingItem) {
+  if (row.reviewAction === 'MERGE') return '已并入'
+  if (row.status === 'PENDING') return '待审批'
+  if (row.status === 'APPROVED') return '已通过'
+  if (row.status === 'REJECTED') return '已拒绝'
+  return row.status || '-'
 }
 
 onMounted(loadList)

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useUiFeatureStore } from '@/stores/ui-feature'
 
 const employeeChildren: RouteRecordRaw[] = [
   {
@@ -118,6 +119,12 @@ const adminChildren: RouteRecordRaw[] = [
     meta: { title: '仪表盘', icon: 'DataAnalysis', roles: ['admin'] }
   },
   {
+    path: 'console/recent-customers',
+    name: 'AdminRecentCustomers',
+    component: () => import('@/views/console/recent-customers.vue'),
+    meta: { title: '最近客户', icon: 'User', roles: ['admin'] }
+  },
+  {
     path: 'console/approvals',
     name: 'TagApprovals',
     component: () => import('@/views/console/tag-approvals.vue'),
@@ -182,10 +189,15 @@ function isAdminPath(path: string) {
   return path.startsWith('/console/')
 }
 
+function resolveBlockedFeatureRedirect(isAdmin: boolean) {
+  return isAdmin ? { name: 'AdminDashboard' } : { name: 'Dashboard' }
+}
+
 router.beforeEach((to, _from, next) => {
   document.title = `${to.meta.title || '管理后台'} - 爱儿美月子中心`
 
   const userStore = useUserStore()
+  const uiFeatureStore = useUiFeatureStore()
   const requiresAuth = to.meta.requiresAuth !== false
 
   if (requiresAuth && !userStore.isLoggedIn) {
@@ -215,6 +227,16 @@ router.beforeEach((to, _from, next) => {
 
   if (userStore.isEmployee && isAdminPath(to.path)) {
     next({ name: 'Dashboard' })
+    return
+  }
+
+  if (to.path === '/orders' && uiFeatureStore.hideOrderUi) {
+    next(resolveBlockedFeatureRedirect(userStore.isAdmin))
+    return
+  }
+
+  if (to.path === '/coupons' && uiFeatureStore.hideCouponUi) {
+    next(resolveBlockedFeatureRedirect(userStore.isAdmin))
     return
   }
 

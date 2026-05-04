@@ -1,7 +1,7 @@
 import { httpRequest, createSSEConnection, type SSEEvent } from '@/api/http';
 import { API_BASE_URL } from '@/api/config';
 import { getToken } from '@/store/session';
-import type { EvaluationReq, ComplaintReq, AiChatReq, AiChatStartEvent, AiChatDeltaEvent, AiChatSuggestionEvent, AiChatDoneEvent, AiChatErrorEvent, AiSessionMessagesResp, UpdateUserReq } from '@/types/api';
+import type { EvaluationReq, ComplaintReq, AiChatReq, AiChatStartEvent, AiChatDeltaEvent, AiChatSuggestionEvent, AiChatDoneEvent, AiChatErrorEvent, AiSessionMessagesResp, UpdateUserReq, UiFeaturesResponse } from '@/types/api';
 import type { Coupon, PostpartumService, FaqCategory, FaqItem, ServiceHotlines, Suite, MagazineDetail } from '@/types/domain';
 
 export function getCurrentUser() {
@@ -36,6 +36,10 @@ export function getMemberHome() {
     serviceEntries?: { id: string; label: string }[];
     quickLinks?: { id: string; label: string }[];
   }>({ url: '/api/v1/member/home' });
+}
+
+export function getUiFeatures() {
+  return httpRequest<UiFeaturesResponse>({ url: '/api/v1/ui/features' });
 }
 
 export function getMemberCoupons() {

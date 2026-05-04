@@ -4,7 +4,7 @@
       <h1 class="page-title">仪表盘</h1>
     </div>
 
-    <div class="stat-grid">
+    <div class="stat-grid" :style="{ '--stat-columns': statColumnCount }">
       <div class="card stat-card">
         <div class="stat-label">活跃客户</div>
         <div class="stat-value">{{ overview.activeCustomers }}</div>
@@ -13,11 +13,11 @@
         <div class="stat-label">今日访问</div>
         <div class="stat-value">{{ overview.todayVisits }}</div>
       </div>
-      <div class="card stat-card">
+      <div v-if="!uiFeatureStore.hideOrderUi" class="card stat-card">
         <div class="stat-label">订单数</div>
         <div class="stat-value">{{ overview.orderCount }}</div>
       </div>
-      <div class="card stat-card">
+      <div v-if="!uiFeatureStore.hideRevenueUi" class="card stat-card">
         <div class="stat-label">营收</div>
         <div class="stat-value">{{ overview.revenueLabel }}</div>
       </div>
@@ -31,7 +31,7 @@
         <div class="metric-row"><span>热门内容</span><b>{{ overview.hotContentTitle || '-' }}</b></div>
       </div>
 
-      <div class="card panel">
+      <div v-if="!uiFeatureStore.hideOrderUi" class="card panel">
         <div class="panel-header">
           <span class="panel-title">最近订单</span>
           <el-button type="primary" link @click="$router.push('/orders')">查看全部</el-button>
@@ -67,12 +67,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { getCustomers, getDashboardOverview } from '@/api/modules/auth'
 import { getArticles } from '@/api/modules/content'
 import { getBanners, getMagazines, getSuites } from '@/api/modules/media'
 import { getOrders } from '@/api/modules/order'
 import type { Customer, Order } from '@/types'
+import { useUiFeatureStore } from '@/stores/ui-feature'
+
+const uiFeatureStore = useUiFeatureStore()
 
 const overview = ref({
   activeCustomers: 0,
@@ -95,9 +98,8 @@ const contentStats = ref({
 })
 
 async function loadDashboard() {
-  const [overviewRes, orderRes, userRes, articleRes, bannerRes, magazineRes, suiteRes] = await Promise.all([
+  const [overviewRes, userRes, articleRes, bannerRes, magazineRes, suiteRes] = await Promise.all([
     getDashboardOverview(),
-    getOrders({ page: 1, pageSize: 5 }),
     getCustomers({ page: 1, pageSize: 5 }),
     getArticles({ page: 1, pageSize: 1 }),
     getBanners(),
@@ -106,7 +108,12 @@ async function loadDashboard() {
   ])
 
   overview.value = overviewRes.data
-  recentOrders.value = orderRes.data.list
+  if (uiFeatureStore.hideOrderUi) {
+    recentOrders.value = []
+  } else {
+    const orderRes = await getOrders({ page: 1, pageSize: 5 })
+    recentOrders.value = orderRes.data.list
+  }
   recentUsers.value = userRes.data.list
   contentStats.value = {
     articles: articleRes.data.total,
@@ -115,6 +122,13 @@ async function loadDashboard() {
     suites: suiteRes.data.length
   }
 }
+
+const statColumnCount = computed(() => {
+  let count = 2
+  if (!uiFeatureStore.hideOrderUi) count += 1
+  if (!uiFeatureStore.hideRevenueUi) count += 1
+  return Math.max(1, Math.min(4, count))
+})
 
 onMounted(() => {
   void loadDashboard()
@@ -129,7 +143,7 @@ function getTagName(tag: Customer['tags'][number]) {
 <style scoped lang="scss">
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--stat-columns, 4), minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }
