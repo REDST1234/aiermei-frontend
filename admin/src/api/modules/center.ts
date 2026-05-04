@@ -12,6 +12,7 @@ export interface CenterSection {
   sort: number;
   status: 'active' | 'inactive';
   createdAt: string;
+  version?: number;
 }
 
 // 中心首页配置
@@ -25,7 +26,9 @@ export interface CenterHomeConfig {
     desc: string;
     image: string;
     sort: number;
+    version?: number;
   }[];
+  version?: number;
 }
 
 // ============ 首页配置 ============
@@ -56,8 +59,8 @@ export function updateCenterSection(id: string, data: Partial<CenterSection>) {
   return put<CenterSection>(`${useUserStore().apiPrefix}/centers/sections/${id}`, data)
 }
 
-export function deleteCenterSection(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/centers/sections/${id}`)
+export function deleteCenterSection(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/centers/sections/${id}`, { version })
 }
 
 // ============ 设施管理 ============
@@ -74,6 +77,6 @@ export function updateCenterFacility(id: string, data: Partial<Omit<CenterFacili
   return put<CenterFacility>(`${useUserStore().apiPrefix}/centers/facilities/${id}`, data)
 }
 
-export function deleteCenterFacility(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/centers/facilities/${id}`)
+export function deleteCenterFacility(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/centers/facilities/${id}`, { version })
 }

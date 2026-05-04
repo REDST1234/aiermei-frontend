@@ -6,13 +6,15 @@ export interface Hotline {
   label: string
   number: string
   sort: number
-  status: 'active' | 'inactive'
+  status?: 'active' | 'inactive'
+  version?: number
 }
 
 export interface HotlineConfig {
   hotlines: Hotline[]
   serviceQrCodeUrl: string
   serviceQrTips: string
+  version?: number
 }
 
 export function getHotlineConfig() {
@@ -27,6 +29,6 @@ export function addHotline(data: { label: string; number: string }) {
   return post<Hotline>(`${useUserStore().apiPrefix}/service/hotlines`, data)
 }
 
-export function deleteHotline(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/service/hotlines/${id}`)
+export function deleteHotline(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/service/hotlines/${id}`, { version })
 }

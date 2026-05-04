@@ -18,8 +18,8 @@ export function updateBanner(id: string, data: Partial<Banner>) {
   return put<Banner>(`${useUserStore().apiPrefix}/content/banners/${id}`, data)
 }
 
-export function deleteBanner(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/content/banners/${id}`)
+export function deleteBanner(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/content/banners/${id}`, { version })
 }
 
 export function getMagazines() {
@@ -38,8 +38,8 @@ export function updateMagazine(id: string, data: Partial<Magazine>) {
   return put<Magazine>(`${useUserStore().apiPrefix}/content/magazines/${id}`, data)
 }
 
-export function deleteMagazine(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/content/magazines/${id}`)
+export function deleteMagazine(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/content/magazines/${id}`, { version })
 }
 
 export function getSuites() {
@@ -58,6 +58,6 @@ export function updateSuite(id: string, data: Partial<Suite>) {
   return put<Suite>(`${useUserStore().apiPrefix}/content/suites/${id}`, data)
 }
 
-export function deleteSuite(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/content/suites/${id}`)
+export function deleteSuite(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/content/suites/${id}`, { version })
 }

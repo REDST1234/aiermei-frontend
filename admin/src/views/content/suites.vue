@@ -97,6 +97,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { isConflictError } from '@/api/request'
 import { Delete } from '@element-plus/icons-vue'
 import { createSuite, deleteSuite, getSuites, updateSuite } from '@/api/modules/media'
 import ImageUpload from '@/components/ImageUpload.vue'
@@ -174,7 +175,8 @@ async function saveSuite() {
     features: suiteForm.features,
     facilities: suiteForm.facilities,
     description: suiteForm.description,
-    sort: suiteForm.sort
+    sort: suiteForm.sort,
+    version: editingSuite.value?.version
   }
 
   try {
@@ -187,17 +189,31 @@ async function saveSuite() {
     }
     editorVisible.value = false
     await loadSuites()
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadSuites()
+      return
+    }
     ElMessage.error('操作失败')
   }
 }
 
 async function toggleStatus(suite: Suite) {
+  if (suite.version === undefined) {
+    ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+    return
+  }
   try {
-    await updateSuite(suite.id, { status: suite.status === 'active' ? 'inactive' : 'active' })
+    await updateSuite(suite.id, { status: suite.status === 'active' ? 'inactive' : 'active', version: suite.version })
     ElMessage.success('状态已更新')
     await loadSuites()
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadSuites()
+      return
+    }
     ElMessage.error('状态更新失败')
   }
 }
@@ -208,11 +224,20 @@ function deleteSuiteHandle(suite: Suite) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
+    if (suite.version === undefined) {
+      ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+      return
+    }
     try {
-      await deleteSuite(suite.id)
+      await deleteSuite(suite.id, suite.version)
       ElMessage.success('套餐已删除')
       await loadSuites()
-    } catch {
+    } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await loadSuites()
+        return
+      }
       ElMessage.error('删除失败')
     }
   }).catch(() => {})

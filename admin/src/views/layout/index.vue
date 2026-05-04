@@ -81,7 +81,6 @@ import {
   Memo,
   Setting,
   Ticket,
-  TrendCharts,
   User
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
@@ -137,8 +136,16 @@ const employeeMenus: MenuNode[] = [
 const adminMenus: MenuNode[] = [
   { index: '/console/dashboard', title: '仪表盘', icon: DataAnalysis },
   { index: '/console/approvals', title: '标签审批池', icon: Checked },
-  { index: '/console/scoring', title: '评分权重', icon: DataLine },
-  { index: '/console/decay', title: '衰减参数', icon: TrendCharts },
+  {
+    index: '/console/scoring-config',
+    title: '评分配置',
+    icon: DataLine,
+    children: [
+      { index: '/console/scoring', title: '评分权重' },
+      { index: '/console/decay', title: '衰减参数' },
+      { index: '/console/scoring-logs', title: '操作日志' }
+    ]
+  },
   { index: '/console/dictionary', title: '字典管理', icon: Memo }
 ]
 

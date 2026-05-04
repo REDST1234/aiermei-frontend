@@ -143,6 +143,12 @@ const adminChildren: RouteRecordRaw[] = [
     meta: { title: '衰减参数', icon: 'TrendCharts', roles: ['admin'] }
   },
   {
+    path: 'console/scoring-logs',
+    name: 'ScoringLogs',
+    component: () => import('@/views/console/scoring-logs.vue'),
+    meta: { title: '操作日志', roles: ['admin'] }
+  },
+  {
     path: 'console/dictionary',
     name: 'TagDictionary',
     component: () => import('@/views/console/dictionary.vue'),

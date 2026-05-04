@@ -40,7 +40,7 @@
         <el-table-column label="操作" width="130">
           <template #default="{ row }">
             <el-button type="primary" link @click="openSectionEditor(row)">编辑</el-button>
-            <el-button type="danger" link @click="removeSection(row.id)">删除</el-button>
+            <el-button type="danger" link @click="removeSection(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -92,6 +92,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { isConflictError } from '@/api/request'
 import { uploadFile } from '@/api/modules/admin-console'
 import {
   createCenterSection,
@@ -156,7 +157,12 @@ async function saveHomeConfig() {
   try {
     await updateCenterHomeConfig(homeForm)
     ElMessage.success('首页配置已保存')
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await reloadAll()
+      return
+    }
     ElMessage.error('首页配置保存失败')
   }
 }
@@ -196,7 +202,8 @@ async function saveSection() {
     coverImage: sectionForm.coverImage,
     detailImage: sectionForm.detailImage,
     status: sectionForm.status,
-    sort: sectionForm.sort
+    sort: sectionForm.sort,
+    version: sectionEditing.value?.version
   }
 
   try {
@@ -208,22 +215,36 @@ async function saveSection() {
     sectionDialog.value = false
     await reloadAll()
     ElMessage.success('板块已保存')
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await reloadAll()
+      return
+    }
     ElMessage.error('板块保存失败')
   }
 }
 
-function removeSection(id: string) {
+function removeSection(section: CenterSection) {
   ElMessageBox.confirm('确认删除该板块？', '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
+    if (section.version === undefined) {
+      ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+      return
+    }
     try {
-      await deleteCenterSection(id)
+      await deleteCenterSection(section.id, section.version)
       await reloadAll()
       ElMessage.success('板块已删除')
-    } catch {
+    } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await reloadAll()
+        return
+      }
       ElMessage.error('板块删除失败')
     }
   }).catch(() => {})

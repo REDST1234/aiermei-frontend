@@ -4,6 +4,7 @@ import type {
   DecayConfigItem,
   PageResponse,
   ScoringWeights,
+  ScoringWeightSchedule,
   TagMention,
   TagPendingDetail,
   TagPendingItem,
@@ -35,6 +36,32 @@ export function getScoringWeights() {
 
 export function updateScoringWeights(data: Pick<ScoringWeights, 'conversionIntent' | 'spendingPower' | 'recentActivity'>) {
   return put<ScoringWeights>(`/admin/scoring-weights`, data)
+}
+
+export function getScoringWeightSchedules() {
+  return get<ScoringWeightSchedule[]>(`/admin/scoring-weights/schedules`)
+}
+
+export function getScoringWeightHistory(limit = 50) {
+  return get<ScoringWeightSchedule[]>(`/admin/scoring-weights/history`, { limit })
+}
+
+export function cancelScoringWeightSchedule(scheduleId: number) {
+  return post<void>(`/admin/scoring-weights/schedules/${scheduleId}/cancel`)
+}
+
+export function rollbackScoringWeight(historyId: number) {
+  return post<ScoringWeightSchedule>(`/admin/scoring-weights/history/${historyId}/rollback`)
+}
+
+export function createScoringWeightSchedule(data: {
+  conversionIntent: number
+  spendingPower: number
+  recentActivity: number
+  effectiveAt: string
+  remark?: string
+}) {
+  return post<ScoringWeightSchedule>(`/admin/scoring-weights/schedules`, data)
 }
 
 export function getDecayConfigList() {
