@@ -29,18 +29,18 @@ export function updateArticle(id: string, data: Partial<Article>) {
 }
 
 // 删除文章
-export function deleteArticle(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/content/articles/${id}`)
+export function deleteArticle(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/content/articles/${id}`, { version })
 }
 
 // 发布文章
-export function publishArticle(id: string) {
-  return post<Article>(`${useUserStore().apiPrefix}/content/articles/${id}/publish`)
+export function publishArticle(id: string, version: number) {
+  return post<Article>(`${useUserStore().apiPrefix}/content/articles/${id}/publish?version=${version}`)
 }
 
 // 归档文章
-export function archiveArticle(id: string) {
-  return post<Article>(`${useUserStore().apiPrefix}/content/articles/${id}/archive`)
+export function archiveArticle(id: string, version: number) {
+  return post<Article>(`${useUserStore().apiPrefix}/content/articles/${id}/archive?version=${version}`)
 }
 
 // 获取分类列表
@@ -54,13 +54,13 @@ export function createCategory(data: { label: string; sort: number }) {
 }
 
 // 更新分类
-export function updateCategory(id: string, data: { label: string; sort: number }) {
+export function updateCategory(id: string, data: { label: string; sort: number; version?: number }) {
   return put<ContentCategory>(`${useUserStore().apiPrefix}/content/categories/${id}`, data)
 }
 
 // 删除分类
-export function deleteCategory(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/content/categories/${id}`)
+export function deleteCategory(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/content/categories/${id}`, { version })
 }
 
 export function extractArticleTags(articleId: string) {

@@ -126,6 +126,7 @@ export interface CenterFacility {
   desc?: string;
   image?: string;
   sort: number;
+  version?: number;
 }
 
 export interface UploadFileResponse {
@@ -219,6 +220,20 @@ export interface AnalysisResult {
   behaviors?: TagItem[];
   tags: Array<TagItem | string>;
   summary: string;
+  taskId?: string;
+  taskStatus?: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED';
+}
+
+export interface AnalysisTask {
+  taskId: string;
+  uid: string;
+  status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED';
+  forceRefresh?: boolean;
+  startedAt?: string;
+  finishedAt?: string;
+  errorCode?: string;
+  errorMessage?: string;
+  result?: AnalysisResult | null;
 }
 
 export interface TagItem {
@@ -339,6 +354,7 @@ export interface Article {
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+  version?: number;
 }
 
 // 文章分类
@@ -346,6 +362,7 @@ export interface ContentCategory {
   id: string;
   label: string;
   sort: number;
+  version?: number;
 }
 
 // 海报/轮播
@@ -359,6 +376,7 @@ export interface Banner {
   sort: number;
   status: 'active' | 'inactive';
   createdAt: string;
+  version?: number;
 }
 
 // 杂志
@@ -372,6 +390,7 @@ export interface Magazine {
   status: 'draft' | 'published' | 'active' | 'inactive';
   publishedAt?: string;
   createdAt: string;
+  version?: number;
 }
 
 // 房型
@@ -388,6 +407,7 @@ export interface Suite {
   facilities?: string[];
   status: 'active' | 'inactive';
   sort: number;
+  version?: number;
 }
 
 // 订单

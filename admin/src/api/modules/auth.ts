@@ -1,6 +1,7 @@
 import { useUserStore } from '@/stores/user'
 import { get, post, put } from '../request'
 import type {
+  AnalysisTask,
   AdminUser,
   AnalysisResult,
   Customer,
@@ -55,4 +56,18 @@ export function analyzeUser(uid: string, forceRefresh?: boolean) {
   return post<AnalysisResult>(`${useUserStore().apiPrefix}/users/${uid}/analysis`, {
     forceRefresh: Boolean(forceRefresh)
   })
+}
+
+export function createAnalysisTask(uid: string, forceRefresh?: boolean) {
+  return post<AnalysisTask>(`${useUserStore().apiPrefix}/users/${uid}/analysis/tasks`, {
+    forceRefresh: Boolean(forceRefresh)
+  })
+}
+
+export function getAnalysisTask(uid: string, taskId: string) {
+  return get<AnalysisTask>(`${useUserStore().apiPrefix}/users/${uid}/analysis/tasks/${taskId}`)
+}
+
+export function getLatestAnalysisTask(uid: string) {
+  return get<AnalysisTask>(`${useUserStore().apiPrefix}/users/${uid}/analysis/tasks/latest`)
 }

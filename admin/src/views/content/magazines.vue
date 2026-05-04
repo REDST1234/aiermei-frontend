@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { isConflictError } from '@/api/request'
 import { createMagazine, deleteMagazine, getMagazines, updateMagazine } from '@/api/modules/media'
 import ImageUpload from '@/components/ImageUpload.vue'
 import type { Magazine } from '@/types'
@@ -120,7 +121,8 @@ async function saveMagazine(status: 'active' | 'inactive') {
     cover: magazineForm.cover,
     author: magazineForm.author,
     content: magazineForm.content,
-    status
+    status,
+    version: editingMagazine.value?.version
   }
 
   if (status === 'active') payload.publishedAt = new Date().toISOString()
@@ -135,17 +137,31 @@ async function saveMagazine(status: 'active' | 'inactive') {
     }
     editorVisible.value = false
     await loadMagazines()
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadMagazines()
+      return
+    }
     ElMessage.error('操作失败')
   }
 }
 
 async function toggleStatus(mag: Magazine) {
+  if (mag.version === undefined) {
+    ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+    return
+  }
   try {
-    await updateMagazine(mag.id, { status: mag.status === 'active' ? 'inactive' : 'active' })
+    await updateMagazine(mag.id, { status: mag.status === 'active' ? 'inactive' : 'active', version: mag.version })
     ElMessage.success('状态已更新')
     await loadMagazines()
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadMagazines()
+      return
+    }
     ElMessage.error('状态更新失败')
   }
 }
@@ -156,11 +172,20 @@ function deleteMagazineHandle(mag: Magazine) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
+    if (mag.version === undefined) {
+      ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+      return
+    }
     try {
-      await deleteMagazine(mag.id)
+      await deleteMagazine(mag.id, mag.version)
       ElMessage.success('已删除')
       await loadMagazines()
-    } catch {
+    } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await loadMagazines()
+        return
+      }
       ElMessage.error('删除失败')
     }
   }).catch(() => {})

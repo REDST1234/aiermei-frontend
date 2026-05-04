@@ -87,6 +87,7 @@
 import { computed, ref, reactive, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { isConflictError } from '@/api/request'
 import { getBanners, createBanner, updateBanner, deleteBanner } from '@/api/modules/media'
 import ImageUpload from '@/components/ImageUpload.vue'
 import type { Banner } from '@/types'
@@ -140,7 +141,8 @@ async function saveBanner() {
   
   const payload = {
     ...bannerForm,
-    status: editingBanner.value ? editingBanner.value.status : 'active'
+    status: editingBanner.value ? editingBanner.value.status : 'active',
+    version: editingBanner.value?.version
   }
 
   try {
@@ -154,17 +156,31 @@ async function saveBanner() {
     editorVisible.value = false
     await loadBanners()
   } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadBanners()
+      return
+    }
     console.error(error)
   }
 }
 
 async function toggleStatus(banner: Banner) {
+  if (banner.version === undefined) {
+    ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+    return
+  }
   const newStatus = banner.status === 'active' ? 'inactive' : 'active'
   try {
-    await updateBanner(banner.id, { status: newStatus })
+    await updateBanner(banner.id, { status: newStatus, version: banner.version })
     ElMessage.success(newStatus === 'active' ? '海报已上线' : '海报已下线')
     await loadBanners()
   } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadBanners()
+      return
+    }
     console.error(error)
   }
 }
@@ -175,11 +191,20 @@ function deleteBannerHandle(banner: Banner) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
+    if (banner.version === undefined) {
+      ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+      return
+    }
     try {
-      await deleteBanner(banner.id)
+      await deleteBanner(banner.id, banner.version)
       ElMessage.success('海报已删除')
       await loadBanners()
     } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await loadBanners()
+        return
+      }
       console.error(error)
     }
   }).catch(() => {})

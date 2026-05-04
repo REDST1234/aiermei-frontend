@@ -157,6 +157,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { isConflictError } from '@/api/request'
 import {
   addArticleTag,
   archiveArticle as apiArchiveArticle,
@@ -312,11 +313,15 @@ async function saveAndPublish() {
 
 async function saveArticle(status: 'draft' | 'published', closeOnSuccess = true) {
   const payload: Partial<Article> = { ...articleForm, status }
+  if (editingArticle.value?.version !== undefined) {
+    payload.version = editingArticle.value.version
+  }
   try {
     let savedArticle: Article
     if (editingArticle.value) {
       const res = await updateArticle(editingArticle.value.id, payload)
       savedArticle = { ...editingArticle.value, ...res.data }
+      editingArticle.value = savedArticle
     } else {
       const res = await createArticle(payload)
       savedArticle = res.data
@@ -334,7 +339,12 @@ async function saveArticle(status: 'draft' | 'published', closeOnSuccess = true)
     }
     await loadArticles()
     return savedArticle
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadArticles()
+      return null
+    }
     ElMessage.error('保存失败')
     return null
   }
@@ -413,21 +423,39 @@ async function removeTag(tag: ArticleTag) {
 }
 
 async function publishArticleHandle(article: Article) {
+  if (article.version === undefined) {
+    ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+    return
+  }
   try {
-    await apiPublishArticle(article.id)
+    await apiPublishArticle(article.id, article.version)
     ElMessage.success('发布成功')
     await loadArticles()
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadArticles()
+      return
+    }
     ElMessage.error('发布失败')
   }
 }
 
 async function archiveArticleHandle(article: Article) {
+  if (article.version === undefined) {
+    ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+    return
+  }
   try {
-    await apiArchiveArticle(article.id)
+    await apiArchiveArticle(article.id, article.version)
     ElMessage.success('归档成功')
     await loadArticles()
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await loadArticles()
+      return
+    }
     ElMessage.error('归档失败')
   }
 }
@@ -438,11 +466,20 @@ function deleteArticleHandle(article: Article) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
+    if (article.version === undefined) {
+      ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+      return
+    }
     try {
-      await deleteArticle(article.id)
+      await deleteArticle(article.id, article.version)
       ElMessage.success('删除成功')
       await loadArticles()
-    } catch {
+    } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await loadArticles()
+        return
+      }
       ElMessage.error('删除失败')
     }
   }).catch(() => {})

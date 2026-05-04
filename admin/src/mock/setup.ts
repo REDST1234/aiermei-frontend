@@ -166,6 +166,7 @@ const state = {
   ] as AnyObj[],
   customerTagCorrections: [] as AnyObj[],
   customerManualScores: {} as Record<string, AnyObj>,
+  analysisTasks: {} as Record<string, AnyObj>,
   presetQuestions: [
     { id: 'pq_1', question: '孕早期孕吐严重怎么办？', answer: '孕早期孕吐常由于激素水平变化，建议少量多餐，优先选择清淡易消化的食物，必要时咨询医生。', category: 'pregnancy', sortNo: 10 },
     { id: 'pq_2', question: '产后脱发怎么办？', answer: '产后脱发多为生理性脱发，通常在产后6-9个月自行恢复，保持心情愉悦和充足睡眠。', category: 'postpartum', sortNo: 20 },
@@ -678,6 +679,71 @@ export function setupMock() {
       const seg = path.split('/').filter(Boolean)
       const uid = seg[2] || state.customers[0]?.uid
       return createResponse(config, mockUserJourney(uid))
+    }
+
+    if (normalizedPath.match(/^\/admin\/users\/[^/]+\/analysis\/tasks$/) && method === 'POST') {
+      const uid = normalizedPath.split('/')[3]
+      const existing = Object.values(state.analysisTasks)
+        .filter((task: AnyObj) => task.uid === uid)
+        .sort((a: AnyObj, b: AnyObj) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))[0]
+      if (existing && (existing.status === 'PENDING' || existing.status === 'RUNNING')) {
+        return createResponse(config, existing)
+      }
+      const taskId = nextId('analysis_task')
+      const task = {
+        taskId,
+        uid,
+        status: 'RUNNING',
+        forceRefresh: Boolean(body.forceRefresh),
+        startedAt: now(),
+        finishedAt: null,
+        errorCode: null,
+        errorMessage: null,
+        result: null,
+        createdAt: now()
+      }
+      state.analysisTasks[taskId] = task
+      return createResponse(config, task)
+    }
+
+    if (normalizedPath.match(/^\/admin\/users\/[^/]+\/analysis\/tasks\/latest$/) && method === 'GET') {
+      const uid = normalizedPath.split('/')[3]
+      const latest = Object.values(state.analysisTasks)
+        .filter((task: AnyObj) => task.uid === uid)
+        .sort((a: AnyObj, b: AnyObj) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))[0]
+      if (!latest) return createResponse(config, null, 4004, 'task not found')
+      return createResponse(config, latest)
+    }
+
+    if (normalizedPath.match(/^\/admin\/users\/[^/]+\/analysis\/tasks\/[^/]+$/) && method === 'GET') {
+      const seg = normalizedPath.split('/')
+      const uid = seg[3]
+      const taskId = seg[6]
+      const task = state.analysisTasks[taskId]
+      if (!task || task.uid !== uid) {
+        return createResponse(config, null, 4004, 'task not found')
+      }
+      if (task.status === 'RUNNING' || task.status === 'PENDING') {
+        const result = mockAnalysisResult()
+        const customer = state.customers.find((u) => u.uid === uid)
+        if (customer) {
+          customer.aiSummary = result.summary
+          customer.profileSummary = result.summary
+          customer.manualTotalScore = Math.floor(60 + Math.random() * 35)
+          if (result.tags && result.tags.length > 0) {
+            customer.tags = [...(customer.tags || []), ...result.tags.map((t: any) => typeof t === 'string' ? t : t.tagName)]
+          }
+        }
+        task.status = 'SUCCESS'
+        task.finishedAt = now()
+        task.result = {
+          ...result,
+          concerns: [{ code: 'sleep_quality', name: '睡眠质量', confidence: 0.81 }],
+          anxieties: [{ code: 'milk_supply', name: '泌乳不足', confidence: 0.79 }],
+          behaviors: [{ code: 'content_reader', name: '内容深读', confidence: 0.74 }]
+        }
+      }
+      return createResponse(config, task)
     }
 
     if (normalizedPath.startsWith('/admin/users/') && normalizedPath.endsWith('/analysis') && method === 'POST') {

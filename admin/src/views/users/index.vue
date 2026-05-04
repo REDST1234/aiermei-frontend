@@ -189,10 +189,6 @@
               />
 
               <div class="confirm-row">
-                <div>
-                  <p class="subtle">建议综合等级</p>
-                  <b class="grade-text">{{ scoreGrade }}</b>
-                </div>
                 <el-button type="primary" :loading="submittingScore" @click="submitManualScore">确认提交</el-button>
               </div>
             </section>
@@ -307,7 +303,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import dayjs from 'dayjs'
 import { View, Hide, Compass, CopyDocument } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { analyzeUser as analyzeUserApi, getCustomerDetail, getCustomers, getUserJourney } from '@/api/modules/auth'
+import { createAnalysisTask, getAnalysisTask, getCustomerDetail, getCustomers, getUserJourney } from '@/api/modules/auth'
 import {
   addCustomerTag,
   getCustomerManualScoreDraft,
@@ -357,12 +353,36 @@ const submittingScore = ref(false)
 const analyzingUid = ref('')
 const updatingUids = ref(new Set<string>())
 
+const ANALYSIS_POLL_INTERVAL_MS = 1500
+const ANALYSIS_POLL_MAX_ROUNDS = 40
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function pollAnalysisResult(uid: string, taskId: string) {
+  for (let round = 0; round < ANALYSIS_POLL_MAX_ROUNDS; round += 1) {
+    const taskRes = await getAnalysisTask(uid, taskId)
+    const task = taskRes.data
+    if (task.status === 'SUCCESS') {
+      return task.result ?? null
+    }
+    if (task.status === 'FAILED') {
+      throw new Error(task.errorMessage || 'AI 分析执行失败')
+    }
+    await sleep(ANALYSIS_POLL_INTERVAL_MS)
+  }
+  return null
+}
+
 async function handleAiAnalysis(user: Customer, force = true) {
   analyzingUid.value = user.uid
   updatingUids.value.add(user.uid)
   
   try {
-    const res = await analyzeUserApi(user.uid, force)
+    const taskRes = await createAnalysisTask(user.uid, force)
+    const taskId = taskRes.data.taskId
+    const result = await pollAnalysisResult(user.uid, taskId)
     
     // 模拟一段分析后的数据加载感，配合动画
     await new Promise(resolve => setTimeout(resolve, 400))
@@ -373,7 +393,9 @@ async function handleAiAnalysis(user: Customer, force = true) {
     
     // 如果详情对话框已打开，且是同一个用户，更新详情页数据
     if (profileDialogVisible.value && selectedUser.value?.uid === user.uid) {
-      analysisResult.value = res.data
+      if (result) {
+        analysisResult.value = result
+      }
       selectedUser.value = updatedUser
     }
     
@@ -382,10 +404,15 @@ async function handleAiAnalysis(user: Customer, force = true) {
     if (index > -1) {
       users.value[index] = updatedUser
     }
-    ElMessage.success('AI 分析完成，数据已更新')
+    if (result) {
+      ElMessage.success('AI 分析完成，数据已更新')
+    } else {
+      ElMessage.info('分析任务仍在进行中，请稍后刷新查看')
+    }
   } catch (e) {
     console.error('AI Analysis failed:', e)
-    ElMessage.error('AI 分析执行失败')
+    const message = e instanceof Error ? e.message : 'AI 分析执行失败'
+    ElMessage.error(message)
   } finally {
     analyzingUid.value = ''
     // 动画保持一段时间
@@ -406,17 +433,6 @@ const updateSnapshots = () => {
   initialScoreSnapshot.value = JSON.stringify(scoreDimensions.map((x) => ({ key: x.key, score: x.score })))
   initialNoteSnapshot.value = manualScoreNote.value
 }
-
-const overallManualScore = computed(() => {
-  const sum = scoreDimensions.reduce((acc, item) => acc + Number(item.score || 0), 0)
-  return Math.round(sum / scoreDimensions.length)
-})
-
-const scoreGrade = computed(() => {
-  if (overallManualScore.value >= 85) return 'A 综合判定'
-  if (overallManualScore.value >= 60) return 'B 综合判定'
-  return 'C 综合判定'
-})
 
 const hasUnsavedScoreChanges = computed(() => {
   const currentScore = JSON.stringify(scoreDimensions.map((x) => ({ key: x.key, score: x.score })))
@@ -457,7 +473,7 @@ function metricPreview(user: Customer, type: 'conversionIntent' | 'spendingPower
 }
 
 function insightPreview(user: Customer) {
-  return user.aiSummary || '未备注'
+  return user.profileSummary || user.aiSummary || '未备注'
 }
 
 function sourceTypeLabel(sourceType: string) {
@@ -1062,12 +1078,8 @@ onMounted(() => {
 .confirm-row {
   margin-top: 10px;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.grade-text {
-  font-size: 22px;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .journey-list {

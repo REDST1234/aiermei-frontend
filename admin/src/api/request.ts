@@ -10,6 +10,30 @@ let isRelogging = false
 // 记录当前正在显示的错误消息内容，用于去重
 const errorMessages = new Set<string>()
 
+export const CONFLICT_CODE = 4090
+
+export class ApiBusinessError extends Error {
+  code: number
+  data: unknown
+  requestId?: string
+
+  constructor(payload: ApiResponse) {
+    super(payload.message || '请求失败')
+    this.name = 'ApiBusinessError'
+    this.code = payload.code
+    this.data = payload.data
+    this.requestId = payload.requestId
+  }
+}
+
+export function isApiBusinessError(error: unknown): error is ApiBusinessError {
+  return error instanceof ApiBusinessError
+}
+
+export function isConflictError(error: unknown): boolean {
+  return isApiBusinessError(error) && error.code === CONFLICT_CODE
+}
+
 /**
  * 显示错误消息（去重版）
  */
@@ -78,7 +102,7 @@ instance.interceptors.response.use(
       showError(data.message || '请求失败')
     }
     
-    return Promise.reject(new Error(data.message || '请求失败'))
+    return Promise.reject(new ApiBusinessError(data))
   },
   (error) => {
     if (error.response?.status === 401) {
@@ -114,8 +138,8 @@ export function put<T>(url: string, data?: unknown): Promise<ApiResponse<T>> {
   return request<T>({ method: 'PUT', url, data })
 }
 
-export function del<T>(url: string): Promise<ApiResponse<T>> {
-  return request<T>({ method: 'DELETE', url })
+export function del<T>(url: string, params?: any): Promise<ApiResponse<T>> {
+  return request<T>({ method: 'DELETE', url, params })
 }
 
 export default instance

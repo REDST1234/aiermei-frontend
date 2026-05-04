@@ -8,6 +8,7 @@ export interface FaqCategory {
   name: string;
   sort: number;
   createdAt: string;
+  version?: number;
 }
 
 // FAQ 条目
@@ -19,6 +20,7 @@ export interface FaqItem {
   sort: number;
   status: 'active' | 'inactive';
   createdAt: string;
+  version?: number;
 }
 
 // ============ 分类管理 ============
@@ -31,12 +33,12 @@ export function createFaqCategory(data: { name: string; sort: number }) {
   return post<FaqCategory>(`${useUserStore().apiPrefix}/faq/categories`, data)
 }
 
-export function updateFaqCategory(id: string, data: { name: string; sort: number }) {
+export function updateFaqCategory(id: string, data: { name: string; sort: number; version?: number }) {
   return put<FaqCategory>(`${useUserStore().apiPrefix}/faq/categories/${id}`, data)
 }
 
-export function deleteFaqCategory(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/faq/categories/${id}`)
+export function deleteFaqCategory(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/faq/categories/${id}`, { version })
 }
 
 // ============ 条目管理 ============
@@ -57,6 +59,6 @@ export function updateFaqItem(id: string, data: Partial<FaqItem>) {
   return put<FaqItem>(`${useUserStore().apiPrefix}/faq/items/${id}`, data)
 }
 
-export function deleteFaqItem(id: string) {
-  return del<void>(`${useUserStore().apiPrefix}/faq/items/${id}`)
+export function deleteFaqItem(id: string, version: number) {
+  return del<void>(`${useUserStore().apiPrefix}/faq/items/${id}`, { version })
 }

@@ -13,12 +13,12 @@
         <el-table :data="categories" style="width: 100%">
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="sort" label="排序" width="90" />
-          <el-table-column label="操作" width="130">
-            <template #default="{ row }">
-              <el-button type="primary" link @click="openCategoryEditor(row)">编辑</el-button>
-              <el-button type="danger" link @click="removeCategory(row.id)">删除</el-button>
-            </template>
-          </el-table-column>
+        <el-table-column label="操作" width="130">
+          <template #default="{ row }">
+            <el-button type="primary" link @click="openCategoryEditor(row)">编辑</el-button>
+            <el-button type="danger" link @click="removeCategory(row)">删除</el-button>
+          </template>
+        </el-table-column>
         </el-table>
       </div>
 
@@ -42,7 +42,7 @@
           <el-table-column label="操作" width="130">
             <template #default="{ row }">
               <el-button type="primary" link @click="openItemEditor(row)">编辑</el-button>
-              <el-button type="danger" link @click="removeItem(row.id)">删除</el-button>
+              <el-button type="danger" link @click="removeItem(row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -79,6 +79,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { isConflictError } from '@/api/request'
 import {
   createFaqCategory,
   createFaqItem,
@@ -137,29 +138,47 @@ async function saveCategory() {
   }
   try {
     if (categoryEditing.value) {
-      await updateFaqCategory(categoryEditing.value.id, { name: categoryForm.name, sort: categoryForm.sort })
+      await updateFaqCategory(categoryEditing.value.id, {
+        name: categoryForm.name,
+        sort: categoryForm.sort,
+        version: categoryEditing.value.version
+      })
     } else {
       await createFaqCategory({ name: categoryForm.name, sort: categoryForm.sort })
     }
     categoryDialog.value = false
     await reloadCategories()
     ElMessage.success('分类已保存')
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await reloadCategories()
+      return
+    }
     ElMessage.error('分类保存失败')
   }
 }
 
-function removeCategory(id: string) {
+function removeCategory(category: FaqCategory) {
   ElMessageBox.confirm('确认删除该分类？', '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
+    if (category.version === undefined) {
+      ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+      return
+    }
     try {
-      await deleteFaqCategory(id)
+      await deleteFaqCategory(category.id, category.version)
       await reloadCategories()
       ElMessage.success('分类已删除')
-    } catch {
+    } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await reloadCategories()
+        return
+      }
       ElMessage.error('分类删除失败')
     }
   }).catch(() => {})
@@ -198,29 +217,43 @@ async function saveItem() {
 
   try {
     if (itemEditing.value) {
-      await updateFaqItem(itemEditing.value.id, payload)
+      await updateFaqItem(itemEditing.value.id, { ...payload, version: itemEditing.value.version })
     } else {
       await createFaqItem(payload)
     }
     itemDialog.value = false
     await reloadItems()
     ElMessage.success('问题已保存')
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await reloadItems()
+      return
+    }
     ElMessage.error('问题保存失败')
   }
 }
 
-function removeItem(id: string) {
+function removeItem(item: FaqItem) {
   ElMessageBox.confirm('确认删除该问题？', '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
+    if (item.version === undefined) {
+      ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+      return
+    }
     try {
-      await deleteFaqItem(id)
+      await deleteFaqItem(item.id, item.version)
       await reloadItems()
       ElMessage.success('问题已删除')
-    } catch {
+    } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await reloadItems()
+        return
+      }
       ElMessage.error('问题删除失败')
     }
   }).catch(() => {})

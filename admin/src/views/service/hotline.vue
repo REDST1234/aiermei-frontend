@@ -35,7 +35,7 @@
         <el-table-column label="操作" width="130">
           <template #default="{ row }">
             <el-button type="primary" link @click="openHotlineEditor(row)">编辑</el-button>
-            <el-button type="danger" link @click="removeHotline(row.id)">删除</el-button>
+            <el-button type="danger" link @click="removeHotline(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -57,11 +57,13 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { isConflictError } from '@/api/request'
 import { uploadFile } from '@/api/modules/admin-console'
 import { addHotline, deleteHotline, getHotlineConfig, updateHotlineConfig, type Hotline } from '@/api/modules/hotline'
 
 const hotlines = ref<Hotline[]>([])
 const configForm = reactive({ serviceQrCodeUrl: '', serviceQrTips: '' })
+const configVersion = ref(0)
 async function handleFileUpload(file: any, key: 'serviceQrCodeUrl') {
   const raw = file?.raw as File | undefined
   if (!raw) return
@@ -80,6 +82,7 @@ async function reloadData() {
   hotlines.value = res.data.hotlines
   configForm.serviceQrCodeUrl = res.data.serviceQrCodeUrl || ''
   configForm.serviceQrTips = res.data.serviceQrTips || ''
+  configVersion.value = res.data.version ?? 0
 }
 
 async function saveConfig() {
@@ -87,10 +90,22 @@ async function saveConfig() {
     await updateHotlineConfig({
       serviceQrCodeUrl: configForm.serviceQrCodeUrl,
       serviceQrTips: configForm.serviceQrTips,
-      hotlines: hotlines.value
+      hotlines: hotlines.value.map((item) => ({
+        id: item.id,
+        label: item.label,
+        number: item.number,
+        sort: item.sort,
+        version: item.version
+      })),
+      version: configVersion.value
     })
     ElMessage.success('配置已保存')
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await reloadData()
+      return
+    }
     ElMessage.error('配置保存失败')
   }
 }
@@ -116,7 +131,14 @@ async function saveHotline() {
       await updateHotlineConfig({
         serviceQrCodeUrl: configForm.serviceQrCodeUrl,
         serviceQrTips: configForm.serviceQrTips,
-        hotlines: updated
+        hotlines: updated.map((item) => ({
+          id: item.id,
+          label: item.label,
+          number: item.number,
+          sort: item.sort,
+          version: item.version
+        })),
+        version: configVersion.value
       })
     } else {
       await addHotline({ label: hotlineForm.label, number: hotlineForm.number })
@@ -124,22 +146,36 @@ async function saveHotline() {
     dialogVisible.value = false
     await reloadData()
     ElMessage.success('热线已保存')
-  } catch {
+  } catch (error) {
+    if (isConflictError(error)) {
+      ElMessage.warning('数据已被他人更新，请刷新后重试')
+      await reloadData()
+      return
+    }
     ElMessage.error('热线保存失败')
   }
 }
 
-function removeHotline(id: string) {
+function removeHotline(hotline: Hotline) {
   ElMessageBox.confirm('确认删除该热线？', '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
     try {
-      await deleteHotline(id)
+      if (hotline.version === undefined) {
+        ElMessage.warning('当前数据缺少版本号，请先刷新列表')
+        return
+      }
+      await deleteHotline(hotline.id, hotline.version)
       await reloadData()
       ElMessage.success('热线已删除')
-    } catch {
+    } catch (error) {
+      if (isConflictError(error)) {
+        ElMessage.warning('数据已被他人更新，请刷新后重试')
+        await reloadData()
+        return
+      }
       ElMessage.error('热线删除失败')
     }
   }).catch(() => {})
