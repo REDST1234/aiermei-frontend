@@ -180,7 +180,8 @@ const state = {
     { tagCode: 'postpartum_recovery', tagName: '产后恢复', description: '产后体能与机能恢复相关标签', status: 'ACTIVE', sortNo: 1, useCount: 125 },
     { tagCode: 'breastfeeding', tagName: '母乳喂养', description: '开奶、催乳及喂养指导相关标签', status: 'ACTIVE', sortNo: 2, useCount: 89 },
     { tagCode: 'newborn_care', tagName: '新生儿护理', description: '婴儿黄疸、睡眠及日常照护相关标签', status: 'ACTIVE', sortNo: 3, useCount: 210 }
-  ] as AnyObj[]
+  ] as AnyObj[],
+  scoringWeightHistory: [] as AnyObj[]
 }
 
 function now() {
@@ -418,7 +419,55 @@ export function setupMock() {
         return createResponse(config, null, 4000, 'weights invalid')
       }
       state.scoringWeights = { conversionIntent, spendingPower, recentActivity, total, updatedAt: now(), updatedBy: 'admin_001' }
+      state.scoringWeightHistory.unshift({
+        id: Date.now(),
+        conversionIntent, spendingPower, recentActivity, total,
+        effectiveAt: now(), status: 'APPLIED', activatedAt: now(),
+        createdBy: 'admin_001', remark: '立即生效',
+        createdAt: now(), updatedAt: now()
+      })
       return createResponse(config, state.scoringWeights)
+    }
+    if (normalizedPath === '/admin/scoring-weights/schedules' && method === 'GET') {
+      return createResponse(config, state.scoringWeightHistory.filter((x: AnyObj) => x.status === 'SCHEDULED'))
+    }
+    if (normalizedPath === '/admin/scoring-weights/history' && method === 'GET') {
+      const limit = toNumber(query.limit, 50)
+      return createResponse(config, state.scoringWeightHistory.slice(0, limit))
+    }
+    if (normalizedPath === '/admin/scoring-weights/schedules' && method === 'POST') {
+      const item = {
+        id: Date.now(),
+        conversionIntent: Number(body.conversionIntent), spendingPower: Number(body.spendingPower),
+        recentActivity: Number(body.recentActivity),
+        total: Number(body.conversionIntent) + Number(body.spendingPower) + Number(body.recentActivity),
+        effectiveAt: body.effectiveAt || now(), status: 'SCHEDULED',
+        createdBy: 'admin_001', remark: body.remark || '',
+        createdAt: now(), updatedAt: now()
+      }
+      state.scoringWeightHistory.unshift(item)
+      return createResponse(config, item)
+    }
+    if (normalizedPath.match(/^\/admin\/scoring-weights\/schedules\/\d+\/cancel$/) && method === 'POST') {
+      const scheduleId = Number(normalizedPath.split('/')[4])
+      const item = state.scoringWeightHistory.find((x: AnyObj) => x.id === scheduleId)
+      if (item) { item.status = 'CANCELLED'; item.cancelledAt = now(); item.updatedAt = now() }
+      return createResponse(config, null)
+    }
+    if (normalizedPath.match(/^\/admin\/scoring-weights\/history\/\d+\/rollback$/) && method === 'POST') {
+      const historyId = Number(normalizedPath.split('/')[4])
+      const source = state.scoringWeightHistory.find((x: AnyObj) => x.id === historyId)
+      if (!source) return createResponse(config, null, 4004, 'history not found')
+      const rollback = {
+        id: Date.now(), conversionIntent: source.conversionIntent, spendingPower: source.spendingPower,
+        recentActivity: source.recentActivity, total: source.total,
+        effectiveAt: now(), status: 'APPLIED', activatedAt: now(),
+        createdBy: 'admin_001', remark: `回滚自版本 #${historyId}`,
+        createdAt: now(), updatedAt: now()
+      }
+      state.scoringWeightHistory.unshift(rollback)
+      state.scoringWeights = { conversionIntent: source.conversionIntent, spendingPower: source.spendingPower, recentActivity: source.recentActivity, total: source.total, updatedAt: now(), updatedBy: 'admin_001' }
+      return createResponse(config, rollback)
     }
     if (normalizedPath === '/admin/decay-config' && method === 'GET') {
       return createResponse(config, state.decayConfig)

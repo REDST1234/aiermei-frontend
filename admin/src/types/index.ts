@@ -99,6 +99,23 @@ export interface ScoringWeights {
   updatedBy: string;
 }
 
+export interface ScoringWeightSchedule {
+  id: number;
+  conversionIntent: number;
+  spendingPower: number;
+  recentActivity: number;
+  total: number;
+  effectiveAt: string;
+  status: string;
+  activatedAt?: string;
+  cancelledAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  remark?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DecayConfigItem {
   eventType: string;
   eventLabel: string;
