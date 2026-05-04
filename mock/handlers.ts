@@ -1,5 +1,5 @@
 import type { ApiResponse } from '@/types/api';
-import { banners, contentCategories, contentItems, coupons, defaultProfile, faqCategories, faqItemsCommon, faqItemsPregnancy, fortuneCard, mockAnalysis, postpartumServices, presetQuestions, serviceHotlines, suites, centerSections, centerHome, magazineDetails } from './data';
+import { banners, contentCategories, contentItems, coupons, defaultProfile, faqCategories, faqItemsCommon, faqItemsPregnancy, fortuneCard, mockAnalysis, postpartumServices, presetQuestions, serviceHotlines, suites, centerSections, centerHome, magazineDetails, memberArticles } from './data';
 
 export function createMockResponse<T>(data: T): ApiResponse<T> {
   return {

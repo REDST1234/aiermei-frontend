@@ -224,9 +224,9 @@ function updateScrollHeight() {
   const sys = uni.getSystemInfoSync();
   const query = uni.createSelectorQuery();
   query.select('#contentHead').boundingClientRect(rect => {
-    if (rect) {
+    if (rect && !Array.isArray(rect)) {
       // 减去头部高度和底部导航高度（约160rpx）
-      const headHeight = rect.height;
+      const headHeight = rect.height || 0;
       const bottomNavHeight = uni.upx2px(160);
       scrollHeight.value = `${sys.windowHeight - headHeight - bottomNavHeight}px`;
     }
