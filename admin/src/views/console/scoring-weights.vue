@@ -27,7 +27,7 @@
       <div class="meta">最近更新：{{ meta.updatedAt || '-' }} / {{ meta.updatedBy || '-' }}</div>
       <div class="action-row">
         <el-button type="primary" size="large" :disabled="total !== 100" :loading="saving" @click="save">保存权重（立即生效）</el-button>
-        <el-button size="large" @click="scheduleDialogVisible = true">新建排期</el-button>
+        <el-button size="large" @click="openScheduleDialog">新建排期</el-button>
       </div>
     </div>
 
@@ -180,6 +180,15 @@ async function save() {
   } finally {
     saving.value = false
   }
+}
+
+function openScheduleDialog() {
+  scheduleForm.conversionIntent = form.conversionIntent
+  scheduleForm.spendingPower = form.spendingPower
+  scheduleForm.recentActivity = form.recentActivity
+  scheduleForm.effectiveAt = null
+  scheduleForm.remark = ''
+  scheduleDialogVisible.value = true
 }
 
 async function submitSchedule() {
